@@ -1,4 +1,4 @@
-const glfw = require("./build/release/gameplay-glfw")
+const glfw = require("./glfw")
 
 glfw.init()
 process.on('exit', () => {
