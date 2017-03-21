@@ -1,4 +1,3 @@
-#include "gl/gl3w.h"
 #include "glfw/glfw3.h"
 #include "node.h"
 #include "v8.h"
@@ -172,11 +171,6 @@ static void MakeContextCurrent(const FunctionCallbackInfo<Value>& args) {
   uint64_t handle = args[0]->IntegerValue();
   GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
   glfwMakeContextCurrent(window);
-
-  if (gl3wInit()) {
-    isolate->ThrowException(Exception::TypeError(
-        String::NewFromUtf8(isolate, "Failed to initialize OpenGL")));
-  }
 }
 
 static void SetInputMode(const FunctionCallbackInfo<Value>& args) {
