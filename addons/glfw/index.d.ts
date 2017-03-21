@@ -21,6 +21,7 @@ declare module "glfw" {
   function swapBuffers(window: number): void
   function pollEvents(): void
   function terminate(): void
+  function windowHint(hint: number, value: number): void
   function windowShouldClose(window: number): boolean
 
   const FOCUSED: number
