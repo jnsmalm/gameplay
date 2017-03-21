@@ -1,5 +1,4 @@
 build
 dist
 *.tar.gz
-*.js
 node*
