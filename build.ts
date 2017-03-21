@@ -81,5 +81,6 @@ function archive(filename: string) {
   await copy(`README.md`, "dist/README.md")
   await copy(`LICENSE`, "dist/LICENSE")
   await copy(`tsconfig.json`, "dist/tsconfig.json")
+  await copy("lib", "dist/node_modules/lib")
   await archive(`/gameplay-v${gamever}-${os.platform()}-${os.arch()}.tar.gz`)
 })()
