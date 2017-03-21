@@ -72,14 +72,14 @@ function archive(filename: string) {
     await copy(`addons/${addon}/index.d.ts`,
       `dist/node_modules/${addon}/index.d.ts`)
   }
-  // await download(
-  //   `https://nodejs.org/dist/v${nodever}/node-v${nodever}-${os.platform()}-${os.arch()}.tar.gz`, 
-  //   "node.tar.gz")
-  // await extract("node.tar.gz")
-  // await copy(`node-v${nodever}-${os.platform()}-${os.arch()}/bin/node`, 
-  //   "dist/bin/gameplay")
-  // await copy(`README.md`, "dist/README.md")
-  // await copy(`LICENSE`, "dist/LICENSE")
-  // await copy(`tsconfig.json`, "dist/tsconfig.json")
-  // await archive(`/gameplay-v${gamever}-${os.platform()}-${os.arch()}.tar.gz`)
+  await download(
+    `https://nodejs.org/dist/v${nodever}/node-v${nodever}-${os.platform()}-${os.arch()}.tar.gz`, 
+    "node.tar.gz")
+  await extract("node.tar.gz")
+  await copy(`node-v${nodever}-${os.platform()}-${os.arch()}/bin/node`, 
+    "dist/bin/gameplay")
+  await copy(`README.md`, "dist/README.md")
+  await copy(`LICENSE`, "dist/LICENSE")
+  await copy(`tsconfig.json`, "dist/tsconfig.json")
+  await archive(`/gameplay-v${gamever}-${os.platform()}-${os.arch()}.tar.gz`)
 })()
