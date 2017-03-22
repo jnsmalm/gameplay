@@ -1,4 +1,4 @@
-declare module "gl" {
+declare module "gameplay/gl" {
   function activeTexture(texture: number): void
   function attachShader(program: number, shader: number): void
   function blendFunc(sfactor: number, dfactor: number): void

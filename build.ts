@@ -66,11 +66,11 @@ function archive(filename: string) {
     await execute("cmake-js", 
       ["rebuild", "-d", `addons/${addon}`, "-v", nodever])
     await copy(`addons/${addon}/build/release/gameplay-${addon}.node`,
-      `dist/node_modules/${addon}/${addon}.node`)
+      `dist/node_modules/gameplay/${addon}/${addon}.node`)
     await copy(`addons/${addon}/index.js`,
-      `dist/node_modules/${addon}/index.js`)
+      `dist/node_modules/gameplay/${addon}/index.js`)
     await copy(`addons/${addon}/index.d.ts`,
-      `dist/node_modules/${addon}/index.d.ts`)
+      `dist/node_modules/gameplay/${addon}/index.d.ts`)
   }
   await download(
     `https://nodejs.org/dist/v${nodever}/node-v${nodever}-${os.platform()}-${os.arch()}.tar.gz`, 
@@ -81,6 +81,6 @@ function archive(filename: string) {
   await copy(`README.md`, "dist/README.md")
   await copy(`LICENSE`, "dist/LICENSE")
   await copy(`tsconfig.json`, "dist/tsconfig.json")
-  await copy("lib", "dist/node_modules/lib")
+  await copy("lib", "dist/node_modules/gameplay/lib")
   await archive(`/gameplay-v${gamever}-${os.platform()}-${os.arch()}.tar.gz`)
 })()

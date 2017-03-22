@@ -1,4 +1,4 @@
-declare module "glfw" {
+declare module "gameplay/glfw" {
   function createWindow(width: number, height: number,
     title: string, monitor?: number, share?: number): number
   function destroyWindow(window: number): void
