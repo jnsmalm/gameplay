@@ -62,7 +62,7 @@ function archive(filename: string) {
 }
 
 (async function () {
-  for (let addon of ["gl", "glfw"]) {
+  for (let addon of ["gl", "glfw", "stb-image"]) {
     await execute("cmake-js", ["rebuild", "-d", addon, "-v", nodever])
     await copy(`${addon}/build/release/gameplay-${addon}.node`,
       `dist/node_modules/gameplay/${addon}/${addon}.node`)
