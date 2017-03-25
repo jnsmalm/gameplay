@@ -2,3 +2,4 @@ build
 dist
 *.tar.gz
 node*
+lib/*.js
