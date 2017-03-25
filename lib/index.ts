@@ -1,3 +1,5 @@
+export * from "./color"
+export * from "./game"
 export * from "./math"
 export * from "./texture"
 export * from "./window"
