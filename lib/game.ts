@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 import * as glfw from "gameplay/glfw"
-import * as gl from "gameplay/gl"
+import * as gl from "gameplay/opengl"
 
 import { Window, WindowOptions } from "./window"
 import { Mouse } from "./mouse"
