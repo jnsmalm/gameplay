@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Name of the project (will be the name of the plugin)
-project(gameplay-gl)
+project(gameplay-opengl)
 
 add_subdirectory(../deps/gl3w bin)
 
