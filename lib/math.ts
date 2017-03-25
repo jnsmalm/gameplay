@@ -335,7 +335,7 @@ export class Quaternion extends Float32Array {
   /**
    * Multiplies two quaternions.
    */
-  static multiply(a: Quaternion, b: Vector3, out = new Quaternion()) {
+  static multiply(a: Quaternion, b: Quaternion, out = new Quaternion()) {
     return <Quaternion>quat.mul(out, a, b)
   }
   /**
