@@ -1,4 +1,4 @@
-const gl = require("./gl")
+const gl = require("./opengl")
 
 gl.DEPTH_BUFFER_BIT = 0x00000100
 gl.STENCIL_BUFFER_BIT = 0x00000400
