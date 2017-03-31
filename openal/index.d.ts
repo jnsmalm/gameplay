@@ -13,7 +13,7 @@ declare module "gameplay/openal" {
   function source3f(
     source: number, format: number, v0: number, v1: number, v2: number): void
   function sourcef(source: number, format: number, v0: number): void
-  function sourcei(source: number, format: number, buffer: number): void
+  function sourcei(source: number, format: number, param: number): void
   function sourcePause(source: number): void
   function sourcePlay(source: number): void
   function sourceStop(source: number): void
