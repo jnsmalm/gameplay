@@ -14,7 +14,7 @@ using v8::Value;
 using v8::Isolate;
 using v8::String;
 using v8::Exception;
-using v8::Uint8Array;
+using v8::Int16Array;
 using v8::ArrayBuffer;
 
 static void DecodeFilename(const FunctionCallbackInfo<Value>& args) {
@@ -29,20 +29,20 @@ static void DecodeFilename(const FunctionCallbackInfo<Value>& args) {
 
   int channels, rate;
   short* output;
-  auto samples = stb_vorbis_decode_filename(
+  int samples = stb_vorbis_decode_filename(
     *filename, &channels, &rate, &output);
 
   if (samples < 0) {
     isolate->ThrowException(Exception::TypeError(
       String::NewFromUtf8(isolate, "Failed to decode")));
   }
+  int bytes = samples * channels * sizeof(short);
+  Local<Int16Array> data = 
+      Int16Array::New(ArrayBuffer::New(isolate, bytes), 0, samples);
 
-  Local<Uint8Array> data = 
-      Uint8Array::New(ArrayBuffer::New(isolate, samples), 0, samples);
   for (int i=0; i<samples; i++) {
     data->Set(i, Number::New(isolate, output[i]));
   }
-
   Local<Object> result = Object::New(isolate);
   result->Set(String::NewFromUtf8(isolate, "channels"), 
     Number::New(isolate, channels));
