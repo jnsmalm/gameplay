@@ -191,6 +191,17 @@ static void CreateVertexArray(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(vertexArray);
 }
 
+static void DepthMask(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (!args[0]->IsBoolean()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  glDepthMask(static_cast<GLboolean>(args[0]->BooleanValue()));
+}
+
 static void Disable(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
@@ -626,6 +637,7 @@ void Initialize(Local<Object> target,
   NODE_SET_METHOD(target, "createShader", CreateShader);
   NODE_SET_METHOD(target, "createTexture", CreateTexture);
   NODE_SET_METHOD(target, "createVertexArray", CreateVertexArray);
+  NODE_SET_METHOD(target, "depthMask", DepthMask);
   NODE_SET_METHOD(target, "disable", Disable);
   NODE_SET_METHOD(target, "drawArrays", DrawArrays);
   NODE_SET_METHOD(target, "drawElements", DrawElements);

@@ -15,6 +15,7 @@ declare module "gameplay/opengl" {
   function createShader(shaderType: number): number
   function createTexture(): number
   function createVertexArray(): number
+  function depthMask(flag: boolean): void
   function disable(cap: number): void
   function drawArrays(mode: number, first: number, count: number): void
   function drawElements(
