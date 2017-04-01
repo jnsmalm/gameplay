@@ -92,6 +92,13 @@ export class VertexSpecification {
     gl.bindVertexArray(0)
   }
 
+  private bindVertexArrayTemporary(usage: () => void) {
+    let binding = gl.getParameter(gl.VERTEX_ARRAY_BINDING)
+    gl.bindVertexArray(this.vertexArray)
+    usage()
+    gl.bindVertexArray(binding)
+  }
+
   /** Draws the vertices that has been set. */
   draw(primitiveType: PrimitiveType, count: number, offset = 0) {
     gl.bindVertexArray(this.vertexArray)
@@ -107,14 +114,18 @@ export class VertexSpecification {
   /** Sets the vertices to draw. */
   setVertexData(
       vertices: Float32Array, usage: BufferUsage = BufferUsage.Static) {
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, usage)
+    this.bindVertexArrayTemporary(() => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
+      gl.bufferData(gl.ARRAY_BUFFER, vertices, usage)
+    })
   }
 
   /** Sets the indices to draw. */
   setIndexData(
       indices: Uint32Array, usage: BufferUsage = BufferUsage.Static) {
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer)
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, usage)
+    this.bindVertexArrayTemporary(() => {
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer)
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, usage)
+    })
   }
 }
