@@ -37,6 +37,7 @@ const matrix = new Pool(Matrix4, 5)
  */
 export interface MeshShader<T> {
   setMaterial(material: T): void
+  use(): void
   createVertexSpec(mesh: MeshGeometry): VertexSpecification
   setWorldMatrix(world: Matrix4): void
 }
@@ -98,6 +99,7 @@ export class Model<T> implements Component {
   }
 
   draw() {
+    this.shader.use()
     for (let mesh of this.meshes) {
       this.shader.setWorldMatrix(mesh.getWorldMatrix(matrix.next()))
       mesh.material.use()
