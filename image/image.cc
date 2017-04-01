@@ -4,7 +4,7 @@
 #include "stb_image.h"
 
 namespace gameplay {
-namespace stb_image {
+namespace image {
 
 using v8::Context;
 using v8::FunctionCallbackInfo;
@@ -60,7 +60,7 @@ void Initialize(Local<Object> target,
   NODE_SET_METHOD(target, "load", Load);
 }
 
-}  // namespace stb_image
+}  // namespace image
 }  // namespace gameplay
 
-NODE_MODULE(gl, gameplay::stb_image::Initialize)
+NODE_MODULE(image, gameplay::image::Initialize)

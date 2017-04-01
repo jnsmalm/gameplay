@@ -1,4 +1,4 @@
-declare module "gameplay/stb-image" {
+declare module "gameplay/image" {
   function load(filepath: string): { 
     channels: number
     width: number

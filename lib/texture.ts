@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 import * as gl from "gameplay/opengl"
-import * as stb_image from "gameplay/stb-image"
+import * as image from "gameplay/image"
 
 export enum TextureFormat {
   RGB = gl.RGB,
@@ -59,17 +59,17 @@ export class Texture2D {
 
   /** Creates a new texture2d from file. */
   static createFromFile(filepath: string) {
-    let image = stb_image.load(filepath)
-    if (!image) {
+    let img = image.load(filepath)
+    if (!img) {
       throw new TypeError(`Failed to load image "${filepath}"`)
     }
     let format = TextureFormat.RGB
-    if (image.channels === 4) {
+    if (img.channels === 4) {
       format = TextureFormat.RGBA
     }
     let texture = new Texture2D(
-      image.width, image.height, format, TextureDataType.UnsignedByte)
-    texture.setData(image.data)
+      img.width, img.height, format, TextureDataType.UnsignedByte)
+    texture.setData(img.data)
     return texture
   }
 
