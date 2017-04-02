@@ -4,8 +4,6 @@ language: cpp
 compiler: clang
 
 install:
-- brew update
-- brew install cmake
 - npm install -g cmake-js
 - npm install -g typescript
 - tsc
