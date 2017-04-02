@@ -27,6 +27,7 @@ import { Window, WindowOptions } from "./window"
 import { Mouse } from "./mouse"
 import { Color } from "./color"
 import { Keyboard, KeyCode } from "./keyboard"
+import { BlendState, DepthState } from "./renderstate"
 
 export interface GameOptions {
   window?: WindowOptions
@@ -73,6 +74,9 @@ export module Game {
       mouse.update()
       update(elapsedTime)
     }
+
+    BlendState.alphaBlend()
+    DepthState.readWrite()
   }
 
   /** Starts running the game loop. */
