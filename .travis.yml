@@ -6,6 +6,7 @@ compiler: clang
 install:
 - npm install -g cmake-js
 - npm install -g typescript
+- npm install -g @types/node
 - tsc
 
 script:
