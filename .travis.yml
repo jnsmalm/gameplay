@@ -1,0 +1,25 @@
+os: osx
+osx_image: xcode7.3
+language: cpp
+compiler: clang
+
+install:
+- brew update
+- brew install cmake
+- npm install -g cmake-js
+- npm install -g typescript
+- tsc
+
+script:
+- node build
+
+deploy:
+  provider: releases
+  api_key:
+    secure: chjHEXNIYUCQYzd2/uTlM9disrAEEp5mlEmZBSc77nOfTyUFmEAxtMbfC++jEkF5EorcJ6BKFgDyOoWak5uc05fcO9jf5skHrWr/BLD8LnlZmRLTv+YYdkQvEZ6WC6zlpWNGmztwsmrgg94HynAYtc0JwB6nkUQzWwSPwO/aZW8wHqtqWWPcA0S1pOTZR2j0CGpRCt5JcsyezVgbbMXyHfw968lbSfVsm5DifiovUehkrQicUuypJZTP3KwCdw+cM/oUsJ+gXJRgtN/2s5hZRkSSkCythKzgaFGv+9EeaifppsWxHdpKY13K1lwHoMj5wm9lCdujxEGxvPVSPByZaLHQ3J17MTD/sGl6QmM1RNDR56exvxtYRrrn+gvEfP2kaD1UKPQ5TG8xtbjyEpFPHBuEvUIla6yT47bgSg3H3J4XkCwjo13fx3A5+CeXI7mWWHJ8j+2facJSewuSCa/qIjkQGXTlLOcrRmdjKXpbIByKGO8d7HNXJ1Kxtuh5RwUKnFRv2CFBdMjwP97uT6eRxlS8DpfRY4oTImRJh8O1uXPKCkZ6SNSXCsY3fM3hhjA3eZM2IBNt5/s42XweqgO4tJTgILRGDvYM58KHZPUaBXmg7oUj05+k9E9ITOR5G78tLKxvt3pyCYZ9Uy4TFCDxFKP0GF3FiZtOapau8JYfaCo=
+  file_glob: true
+  file: gameplay*.tar.gz
+  skip_cleanup: true
+  draft: true
+  on:
+    tags: true
