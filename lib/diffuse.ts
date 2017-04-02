@@ -68,7 +68,7 @@ export class DiffuseShader extends Shader implements MeshShader<DiffuseMaterial>
     this.uniform["model"] = world
   }
 
-  setCamera(camera: Camera) {
+  updateCamera(camera: Camera) {
     this.setView(camera.getView())
     this.setProjection(camera.getProjection())
   }
