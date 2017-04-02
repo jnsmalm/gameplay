@@ -60,18 +60,3 @@ target_link_libraries(${PROJECT_NAME} INTERFACE ${EXTERNAL_LIBRARIES} ${CMAKE_DL
 
 set(MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(BUILD_CMAKE_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake")
-
-# export targets for remote projects (i.e. make find_package(gl3w) work)
-configure_file(
-	"${MODULE_PATH}/${PROJECT_NAME}-config.cmake"
-	"${BUILD_CMAKE_DIR}/${PROJECT_NAME}-config.cmake"
-	COPYONLY
-)
-
-export(
-	TARGETS ${PROJECT_NAME}
-	FILE "${BUILD_CMAKE_DIR}/${PROJECT_NAME}-targets.cmake"
-)
-
-export(PACKAGE ${PROJECT_NAME})
-
