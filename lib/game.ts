@@ -24,9 +24,8 @@ import * as glfw from "gameplay/glfw"
 import * as gl from "gameplay/opengl"
 
 import { Window, WindowOptions } from "./window"
-import { Mouse } from "./mouse"
+import { Mouse, Keyboard, KeyCode  } from "./input"
 import { Color } from "./color"
-import { Keyboard, KeyCode } from "./keyboard"
 import { BlendState, DepthState } from "./renderstate"
 
 export interface GameOptions {
