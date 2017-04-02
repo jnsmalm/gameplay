@@ -153,8 +153,7 @@ export class SpriteBatch {
     for (let sprite of this.sprites) {
       if (spriteCount === this.maxBatchSize || 
           texture !== sprite.texture || drawOrder != sprite.drawOrder) {
-        texture.use()
-        this.drawBatch(spriteCount)
+        this.drawBatch(spriteCount, texture)
         spriteCount = 0
         texture = sprite.texture
         drawOrder = sprite.drawOrder
@@ -162,9 +161,10 @@ export class SpriteBatch {
       this.vertices.add(sprite)
       this.indicies.add(spriteCount++)
     }
-    texture.use()
-    this.drawBatch(spriteCount)
-    this.sprites.length = 0
+    if (spriteCount > 0) {
+      this.drawBatch(spriteCount, texture)
+      this.sprites.length = 0
+    }
   }
 
   /**
@@ -180,10 +180,12 @@ export class SpriteBatch {
   /**
    * Draws a batch of sprites using the same texture.
    */
-  private drawBatch(spriteCount: number) {
+  private drawBatch(spriteCount: number, texture: Texture2D) {
     if (spriteCount === 0) {
       return
     }
+    texture.use()
+    
     this.vertexSpec.setVertexData(this.vertices, BufferUsage.Dynamic)
     this.vertexSpec.setIndexData(this.indicies, BufferUsage.Dynamic)
     this.vertexSpec.drawIndexed(PrimitiveType.Triangles, 6 * spriteCount)
