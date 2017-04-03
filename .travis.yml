@@ -21,5 +21,3 @@ deploy:
   file: gameplay*.tar.gz
   skip_cleanup: true
   draft: true
-  on:
-    tags: true
