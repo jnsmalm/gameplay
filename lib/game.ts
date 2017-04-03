@@ -101,10 +101,10 @@ export module Game {
   }
 
   /** Draw implemented by the user. */
-  export let draw: () => void
+  export let draw = () => {}
 
   /** Update implemented by the user. */
-  export let update: (elapsedTime: number) => void
+  export let update = (elapsedTime: number) => {}
 }
 
 class TimeStep {
