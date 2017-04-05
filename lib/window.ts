@@ -39,16 +39,19 @@ export class Window {
    */
   constructor(options: WindowOptions = {}) {
     var { 
-      width = 1024,
-      height = 576, 
+      width = options.fullscreen ? null : 1024,
+      height = options.fullscreen ? null : 576, 
       title = "", 
       fullscreen = false 
     } = options
 
-    glfw.windowHint(glfw.CONTEXT_VERSION_MAJOR, 3)
-    glfw.windowHint(glfw.CONTEXT_VERSION_MINOR, 3)
-    glfw.windowHint(glfw.OPENGL_FORWARD_COMPAT, 1)
-    glfw.windowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+    let videoMode = <glfw.VideoMode>null
+    if (fullscreen && !width && !height) {
+      videoMode = glfw.getVideoMode(glfw.getPrimaryMonitor())
+      width = videoMode.width
+      height = videoMode.height
+    }
+    this.setWindowHints(videoMode)
 
     this.handle = glfw.createWindow(width, height, title, 
       fullscreen ? glfw.getPrimaryMonitor() : null)
@@ -60,6 +63,21 @@ export class Window {
 
     let size = glfw.getFramebufferSize(this.handle)
     gl.viewport(0, 0, size.width, size.height)
+  }
+
+  private setWindowHints(videoMode: glfw.VideoMode) {
+    glfw.windowHint(glfw.CONTEXT_VERSION_MAJOR, 3)
+    glfw.windowHint(glfw.CONTEXT_VERSION_MINOR, 3)
+    glfw.windowHint(glfw.OPENGL_FORWARD_COMPAT, 1)
+    glfw.windowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+
+    if (!videoMode) {
+      return
+    }
+    glfw.windowHint(glfw.RED_BITS, videoMode.redBits)
+    glfw.windowHint(glfw.GREEN_BITS, videoMode.greenBits)
+    glfw.windowHint(glfw.BLUE_BITS, videoMode.blueBits)
+    glfw.windowHint(glfw.REFRESH_RATE, videoMode.refreshRate)
   }
 
   /** Processes all pending events. */
