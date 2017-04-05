@@ -1,4 +1,13 @@
 declare module "gameplay/glfw" {
+  interface VideoMode {
+    redBits: number
+    greenBits: number
+    blueBits: number
+    refreshRate: number
+    width: number
+    height: number
+  }
+  
   function createWindow(width: number, height: number,
     title: string, monitor?: number, share?: number): number
   function destroyWindow(window: number): void
@@ -14,6 +23,7 @@ declare module "gameplay/glfw" {
   function getKey(window: number, key: number): number
   function getPrimaryMonitor(): number
   function getTime(): number
+  function getVideoMode(monitor: number): VideoMode
   function init(): void
   function makeContextCurrent(window: number): void
   function setInputMode(window: number, mode: number, value: number): void

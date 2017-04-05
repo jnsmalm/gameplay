@@ -156,6 +156,36 @@ static void GetTime(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(glfwGetTime());
 }
 
+static void GetVideoMode(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+  
+  if (!args[0]->IsNumber()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  uint64_t handle = args[0]->IntegerValue();
+  GLFWmonitor* monitor = reinterpret_cast<GLFWmonitor*>(handle);
+  
+  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+  
+  Local<Object> result = Object::New(isolate);
+  result->Set(String::NewFromUtf8(isolate, "redBits"), 
+    Number::New(isolate, mode->redBits));
+  result->Set(String::NewFromUtf8(isolate, "greenBits"), 
+    Number::New(isolate, mode->greenBits));
+  result->Set(String::NewFromUtf8(isolate, "blueBits"), 
+    Number::New(isolate, mode->blueBits));
+  result->Set(String::NewFromUtf8(isolate, "refreshRate"), 
+    Number::New(isolate, mode->refreshRate));
+  result->Set(String::NewFromUtf8(isolate, "width"), 
+    Number::New(isolate, mode->width));
+  result->Set(String::NewFromUtf8(isolate, "height"), 
+    Number::New(isolate, mode->height));
+
+  args.GetReturnValue().Set(result);
+}
+
 static void Init(const FunctionCallbackInfo<Value>& args) {
   glfwInit();
 }
@@ -264,6 +294,7 @@ void Initialize(
   NODE_SET_METHOD(target, "getMouseButton", GetMouseButton);
   NODE_SET_METHOD(target, "getPrimaryMonitor", GetPrimaryMonitor);
   NODE_SET_METHOD(target, "getTime", GetTime);
+  NODE_SET_METHOD(target, "getVideoMode", GetVideoMode);
   NODE_SET_METHOD(target, "init", Init);
   NODE_SET_METHOD(target, "makeContextCurrent", MakeContextCurrent);
   NODE_SET_METHOD(target, "pollEvents", PollEvents);
