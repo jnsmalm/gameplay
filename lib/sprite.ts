@@ -141,15 +141,15 @@ export class SpriteBatch {
     if (this.sprites.length === 0) {
       return
     }
+    this.sprites.sort(this.sortSprites)
     this.shader.use()
     this.shader.uniform["viewProjection"] = 
       this.camera.getViewProjection(matrix)
-
+    
     let spriteCount = 0
     let drawOrder = this.sprites[0].drawOrder
     let texture = this.sprites[0].texture
 
-    this.sprites.sort(this.sort)
     for (let sprite of this.sprites) {
       if (spriteCount === this.maxBatchSize || 
           texture !== sprite.texture || drawOrder != sprite.drawOrder) {
@@ -170,7 +170,7 @@ export class SpriteBatch {
   /**
    * Sorts the sprites by texture and draw order.
    */
-  private sort(a: Sprite, b: Sprite) {
+  private sortSprites(a: Sprite, b: Sprite) {
     if (a.drawOrder === b.drawOrder) {
       return a.texture.texture - b.texture.texture
     }
