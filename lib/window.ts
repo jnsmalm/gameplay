@@ -38,26 +38,29 @@ export class Window {
    * Creates a new window and sets OpenGL context.
    */
   constructor(options: WindowOptions = {}) {
-    var { 
+    var {
       width = options.fullscreen ? null : 1024,
-      height = options.fullscreen ? null : 576, 
-      title = "", 
-      fullscreen = false 
+      height = options.fullscreen ? null : 576,
+      title = "",
+      fullscreen = false
     } = options
 
-    let videoMode = <glfw.VideoMode>null
-    if (fullscreen && !width && !height) {
-      videoMode = glfw.getVideoMode(glfw.getPrimaryMonitor())
-      width = videoMode.width
-      height = videoMode.height
+    let videoMode: glfw.VideoMode
+    if (fullscreen && (!width || !height)) {
+      videoMode = glfw.getVideoMode(glfw.getPrimaryMonitor());
+      ({ width, height } = videoMode)
     }
     this.setWindowHints(videoMode)
 
-    this.handle = glfw.createWindow(width, height, title, 
+    this.handle = glfw.createWindow(width, height, title,
       fullscreen ? glfw.getPrimaryMonitor() : null)
     glfw.makeContextCurrent(this.handle)
     gl.init()
 
+    if (fullscreen) {
+      // GLFW might have selected a different resolution
+      ({ width, height } = glfw.getVideoMode(glfw.getPrimaryMonitor()))
+    }
     this.width = width
     this.height = height
 
