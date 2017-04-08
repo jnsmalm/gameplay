@@ -50,3 +50,19 @@ export module DepthState {
     gl.depthMask(false)
   }
 }
+
+export module RasterizerState {
+  export function cullNone() {
+    gl.disable(gl.CULL_FACE)
+  }
+  export function cullClockwise() {
+    gl.enable(gl.CULL_FACE)
+    gl.cullFace(gl.BACK)
+    gl.frontFace(gl.CCW)
+  }
+  export function cullCounterClockwise() {
+    gl.enable(gl.CULL_FACE)
+    gl.cullFace(gl.BACK)
+    gl.frontFace(gl.CW)
+  }
+}

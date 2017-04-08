@@ -26,7 +26,7 @@ import * as gl from "gameplay/opengl"
 import { Window, WindowOptions } from "./window"
 import { Mouse, Keyboard, KeyCode  } from "./input"
 import { Color } from "./color"
-import { BlendState, DepthState } from "./renderstate"
+import { BlendState, DepthState, RasterizerState } from "./renderstate"
 
 export interface GameOptions {
   window?: WindowOptions
@@ -75,6 +75,7 @@ export module Game {
     }
 
     BlendState.alphaBlend()
+    RasterizerState.cullClockwise()
     DepthState.readWrite()
   }
 
