@@ -322,9 +322,9 @@ export class Quaternion extends Float32Array {
    * Creates a new quaternion from a vector and an angle to rotate about the 
    * vector.
    */
-  static createFromAxisAngle(axis: Vector3, angle: number, 
+  static createFromAxisAngle(axis: Vector3, degrees: number, 
       out = new Quaternion()) {
-    return <Quaternion>quat.setAxisAngle(out, axis, angle)
+    return <Quaternion>quat.setAxisAngle(out, axis, degrees * Angle.deg2rad)
   }
   /**
    * Creates a identity quaternion.
