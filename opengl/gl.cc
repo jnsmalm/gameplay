@@ -191,6 +191,18 @@ static void CreateVertexArray(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(vertexArray);
 }
 
+static void CullFace(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (!args[0]->IsNumber()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  GLenum mode = static_cast<GLenum>(args[0]->IntegerValue());
+  glCullFace(mode);
+}
+
 static void DepthMask(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
@@ -269,6 +281,18 @@ static void EnableVertexAttribArray(const FunctionCallbackInfo<Value>& args) {
   }
   GLuint index = static_cast<GLuint>(args[0]->Int32Value());
   glEnableVertexAttribArray(index);
+}
+
+static void FrontFace(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (!args[0]->IsNumber()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  GLenum mode = static_cast<GLenum>(args[0]->IntegerValue());
+  glFrontFace(mode);
 }
 
 static void GetAttribLocation(const FunctionCallbackInfo<Value>& args) {
@@ -637,12 +661,14 @@ void Initialize(Local<Object> target,
   NODE_SET_METHOD(target, "createShader", CreateShader);
   NODE_SET_METHOD(target, "createTexture", CreateTexture);
   NODE_SET_METHOD(target, "createVertexArray", CreateVertexArray);
+  NODE_SET_METHOD(target, "cullFace", CullFace);
   NODE_SET_METHOD(target, "depthMask", DepthMask);
   NODE_SET_METHOD(target, "disable", Disable);
   NODE_SET_METHOD(target, "drawArrays", DrawArrays);
   NODE_SET_METHOD(target, "drawElements", DrawElements);
   NODE_SET_METHOD(target, "enable", Enable);
   NODE_SET_METHOD(target, "enableVertexAttribArray", EnableVertexAttribArray);
+  NODE_SET_METHOD(target, "frontFace", FrontFace);
   NODE_SET_METHOD(target, "getAttribLocation", GetAttribLocation);
   NODE_SET_METHOD(target, "getError", GetError);
   NODE_SET_METHOD(target, "getParameter", GetParameter);
