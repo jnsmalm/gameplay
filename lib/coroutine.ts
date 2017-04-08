@@ -45,6 +45,19 @@ export interface WaitInstruction {
   update?(elapsedTime: number): void
 }
 
+export class WaitForNextFrame implements WaitInstruction {
+  private _elapsedTime = 0
+  get elapsedTime() {
+    return this._elapsedTime
+  }
+  get resume() {
+    return true
+  }
+  update(elapsedTime: number) {
+    this._elapsedTime = elapsedTime
+  }
+}
+
 export class WaitForSeconds implements WaitInstruction {
   constructor(private seconds: number) { }
   get resume() {
