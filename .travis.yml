@@ -2,21 +2,18 @@ os: osx
 osx_image: xcode7.3
 language: cpp
 compiler: clang
-
 install:
 - npm install -g cmake-js
 - npm install -g typescript
 - npm install @types/node
 - npm install
 - tsc
-
 script:
 - node build
-
 deploy:
   provider: releases
   api_key:
-    secure: chjHEXNIYUCQYzd2/uTlM9disrAEEp5mlEmZBSc77nOfTyUFmEAxtMbfC++jEkF5EorcJ6BKFgDyOoWak5uc05fcO9jf5skHrWr/BLD8LnlZmRLTv+YYdkQvEZ6WC6zlpWNGmztwsmrgg94HynAYtc0JwB6nkUQzWwSPwO/aZW8wHqtqWWPcA0S1pOTZR2j0CGpRCt5JcsyezVgbbMXyHfw968lbSfVsm5DifiovUehkrQicUuypJZTP3KwCdw+cM/oUsJ+gXJRgtN/2s5hZRkSSkCythKzgaFGv+9EeaifppsWxHdpKY13K1lwHoMj5wm9lCdujxEGxvPVSPByZaLHQ3J17MTD/sGl6QmM1RNDR56exvxtYRrrn+gvEfP2kaD1UKPQ5TG8xtbjyEpFPHBuEvUIla6yT47bgSg3H3J4XkCwjo13fx3A5+CeXI7mWWHJ8j+2facJSewuSCa/qIjkQGXTlLOcrRmdjKXpbIByKGO8d7HNXJ1Kxtuh5RwUKnFRv2CFBdMjwP97uT6eRxlS8DpfRY4oTImRJh8O1uXPKCkZ6SNSXCsY3fM3hhjA3eZM2IBNt5/s42XweqgO4tJTgILRGDvYM58KHZPUaBXmg7oUj05+k9E9ITOR5G78tLKxvt3pyCYZ9Uy4TFCDxFKP0GF3FiZtOapau8JYfaCo=
+    secure: C0uWymE5LlRy7QPLpr332Kjv0TPEPh/78+2pzcpKXVRisYML82ULy/1QJSUUuCQCAVraRi2IJEeE2NA9RL8hSSzg1OjJ5yX8XcR9njmWUdzb3mMqHzaj1vqvRl3LQa+K3kHuTeglsunjepfbprCA6Qsir2ea6hOdV/0l6d6Ui1qU34/N7WrNke2rnVU8SGkITQDlg7ru1quAyXuHxeLhxio5RfwumhkRrQKI+Cz/6EpdDeewHhH5N/y+gsPBRjOY5jayK7zwnwMlS5RwWp/1yw8j7YoR2s62ZVZ4C6iidjA6sCNHoX0WxHc8yFqr4bQLCbHRELIgzftGeUfxbslKafpq5U97r/6HFeVz/KRgNkN4YAJKsgFyWIsWejTe/rXyycR7bregq0u18hnvyPt46ll8gDvUzDk7aF/13p8OOyDP3uKx2rIWBRBquVzS8EzCHFUo607jVNc26O+Wc7/MruiuhFDRANwGwYpax0lrA696nbx80FIQt5njGXPsPBdVcre4iWkpZ5/qQ7BnzmBYUG0xz+QuWxgL9BhvBc2mH9oIHFAGg/sHWz/g6Kr5t2esP3zNoWPGt/5ORxx+6huph3xCm46k1f9T+wLskyX3C6+6O/i+PqdGdgHP2TLI1E1aIK3BESDwdS7NAAd8mFY1TV7Fzu9wIcKQ1o39qvIwlN0=
   file_glob: true
   file: gameplay*.tar.gz
   skip_cleanup: true
