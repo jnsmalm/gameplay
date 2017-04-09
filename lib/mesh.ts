@@ -109,28 +109,9 @@ export class DiffuseShader extends Shader implements MeshShader<DiffuseMaterial>
   }
 }
 
-/**
- * Represents a material used when drawing a mesh.
- */
-// export interface MeshMaterial {
-//   /**
-//    * Use this material when drawing a mesh.
-//    */
-//   use(): void
-// }
-
 export class DiffuseMaterial {
   diffuseMap: Texture2D
   diffuse: Vector3
-
-  /**
-   * Creates a new diffuse material,
-   */
-  constructor(public shader: MeshShader<DiffuseMaterial>) { }
-
-  use() {
-    this.shader.setMaterial(this)
-  }
 }
 
 /**

@@ -27,7 +27,7 @@ import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
 import { VertexSpecification, VertexAttribute, PrimitiveType, BufferUsage } from "./vertex"
 import { Component } from "./entity"
-import { Model, MeshShader, Mesh, DiffuseMaterial, DiffuseShader } from "./mesh"
+import { Model, MeshShader, Mesh, DiffuseMaterial } from "./mesh"
 
 /**
  * Open Asset Import Library
@@ -118,7 +118,7 @@ class AssimpReader {
   }
 
   readMaterial(data: any) {
-    let material = new DiffuseMaterial(this.shader)
+    let material = new DiffuseMaterial()
     for (let i = 0; i < data.properties.length; i++) {
       let value = data.properties[i].value
       switch (data.properties[i].key) {
