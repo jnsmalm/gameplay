@@ -26,10 +26,8 @@ import { Texture2D } from "./texture"
 import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
 import { VertexSpecification, VertexAttribute, PrimitiveType, BufferUsage } from "./vertex"
-import { Shader } from "./shader"
 import { Component } from "./entity"
-import { Model, MeshShader, Mesh } from "./mesh"
-import { DiffuseMaterial, DiffuseShader } from "./diffuse"
+import { Model, MeshShader, Mesh, DiffuseMaterial, DiffuseShader } from "./mesh"
 
 /**
  * Open Asset Import Library
@@ -63,8 +61,8 @@ class AssimpReader {
   }
 
   readNodeHierarchy(node: any, 
-      transform: Transform, transformation?: Matrix4): Mesh[] {
-    let meshes: Mesh[] = []
+      transform: Transform, transformation?: Matrix4): Mesh<DiffuseMaterial>[] {
+    let meshes: Mesh<DiffuseMaterial>[] = []
 
     let nodeTransformation = 
       AssimpReader.readTransformation(node.transformation)
@@ -93,7 +91,7 @@ class AssimpReader {
   }
 
   readMesh(data: any, transformation: Matrix4) {
-    let mesh = new Mesh(transformation)
+    let mesh = new Mesh<DiffuseMaterial>(transformation)
     mesh.material = this.readMaterial(
       this.data.materials[data.materialindex])
 
