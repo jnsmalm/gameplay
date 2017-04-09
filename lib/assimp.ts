@@ -36,7 +36,8 @@ export module Assimp {
   /**
    * Creates a model from a assimp2json file.
    */
-  export function createFromFile(filePath: string, shader: MeshShader<DiffuseMaterial>) {
+  export function createModelFromFile(
+      filePath: string, shader: MeshShader<DiffuseMaterial>) {
     let data = JSON.parse(fs.readFileSync(filePath, "utf8"));
     let reader = new AssimpReader(
       filePath.replace(/[^\/]*$/, ''), data, shader);
