@@ -7,7 +7,7 @@ import * as targz from "targz"
 import * as path from "path"
 
 const nodever = "7.7.3"
-const gamever = "0.1.0"
+const gamever = "0.7.1"
 
 function download(url: string, filename: string) {
   console.log(`download ${url}...`)
