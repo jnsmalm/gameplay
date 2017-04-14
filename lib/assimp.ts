@@ -27,7 +27,30 @@ import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
 import { VertexSpecification, VertexAttribute, PrimitiveType, BufferUsage } from "./vertex"
 import { Component } from "./entity"
-import { Model, MeshShader, Mesh, DiffuseMaterial } from "./mesh"
+import { Model, MeshShader, Mesh } from "./mesh"
+
+export interface AssimpCustomMaterial<T> {
+  new (material: AssimpMaterial): T
+}
+
+/**
+ * Default material used when reading from assimp2json
+ */
+export class AssimpMaterial {
+  ambientColor = new Vector3(1, 1, 1)
+  diffuseColor = new Vector3(1, 1, 1)
+  diffuseMap: Texture2D
+  specularColor = new Vector3(1, 1, 1)
+
+  constructor(material: AssimpMaterial) {
+    if (material) {
+      this.ambientColor = material.ambientColor
+      this.diffuseColor = material.diffuseColor
+      this.diffuseMap = material.diffuseMap
+      this.specularColor = material.specularColor
+    }
+  }
+}
 
 /**
  * Open Asset Import Library
@@ -36,22 +59,25 @@ export module Assimp {
   /**
    * Creates a model from a assimp2json file.
    */
-  export function createModelFromFile(
-      filePath: string, shader: MeshShader<DiffuseMaterial>) {
+  export function createModelCustomMaterial<T>(filePath: string, shader: MeshShader<T>, customMaterial: AssimpCustomMaterial<T>) {
     let data = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    let reader = new AssimpReader(
-      filePath.replace(/[^\/]*$/, ''), data, shader);
-    let model = new Model(shader)
+    let reader = new AssimpReader<T>(
+      filePath.replace(/[^\/]*$/, ''), data, shader, customMaterial);
+    let model = new Model<T>(shader)
     model.meshes = reader.readNodeHierarchy(data.rootnode, model.transform);
     return model
   }
+
+  export function createModel(filePath: string, shader: MeshShader<AssimpMaterial>) {
+    return createModelCustomMaterial(filePath, shader, AssimpMaterial)
+  }
 }
 
-class AssimpReader {
+class AssimpReader<T> {
   textures: { [filepath: string]: Texture2D } = {}
 
   constructor(private path: string, private data: any,
-    private shader: MeshShader<DiffuseMaterial>) { }
+    private shader: MeshShader<T>, private customMaterial: AssimpCustomMaterial<T>) { }
 
   static readTransformation(transformation: number[]) {
     let matrix = new Matrix4()
@@ -61,11 +87,10 @@ class AssimpReader {
     return matrix.transpose(matrix)
   }
 
-  readNodeHierarchy(node: any, 
-      transform: Transform, transformation?: Matrix4): Mesh<DiffuseMaterial>[] {
-    let meshes: Mesh<DiffuseMaterial>[] = []
+  readNodeHierarchy(node: any, transform: Transform, transformation?: Matrix4): Mesh<T>[] {
+    let meshes: Mesh<T>[] = []
 
-    let nodeTransformation = 
+    let nodeTransformation =
       AssimpReader.readTransformation(node.transformation)
     if (transformation) {
       Matrix4.multiply(transformation, nodeTransformation, nodeTransformation)
@@ -92,9 +117,8 @@ class AssimpReader {
   }
 
   readMesh(data: any, transformation: Matrix4) {
-    let mesh = new Mesh<DiffuseMaterial>(transformation)
-    mesh.material = this.readMaterial(
-      this.data.materials[data.materialindex])
+    let mesh = new Mesh<T>(transformation)
+    mesh.material = this.readMaterial(this.data.materials[data.materialindex])
 
     for (var i = 0; i < data.vertices.length; i += 3) {
       mesh.geometry.vertices.push(new Vector3(
@@ -119,7 +143,7 @@ class AssimpReader {
   }
 
   readMaterial(data: any) {
-    let material = new DiffuseMaterial()
+    let material = new AssimpMaterial(null)
     for (let i = 0; i < data.properties.length; i++) {
       let value = data.properties[i].value
       switch (data.properties[i].key) {
@@ -136,11 +160,28 @@ class AssimpReader {
           break;
         }
         case "$clr.diffuse": {
-          material.diffuse = new Vector3(value[0], value[1], value[2])
+          let color = new Vector3(value[0], value[1], value[2])
+          if (color.magnitude > 0) {
+            material.diffuseColor = color
+          }
+          break
+        }
+        case "$clr.ambient": {
+          let color = new Vector3(value[0], value[1], value[2])
+          if (color.magnitude > 0) {
+            material.ambientColor = color
+          }
+          break
+        }
+        case "$clr.specular": {
+          let color = new Vector3(value[0], value[1], value[2])
+          if (color.magnitude > 0) {
+            material.specularColor = color
+          }
           break
         }
       }
     }
-    return material
+    return new this.customMaterial(material)
   }
 }

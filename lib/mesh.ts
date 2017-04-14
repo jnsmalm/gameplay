@@ -22,13 +22,10 @@ SOFTWARE.*/
 
 import * as fs from "fs"
 
-import { Texture2D } from "./texture"
 import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
-import { VertexSpecification, VertexAttribute, PrimitiveType, BufferUsage } from "./vertex"
-import { Shader } from "./shader"
+import { VertexSpecification, PrimitiveType } from "./vertex"
 import { Component } from "./entity"
-import { Color } from "./color"
 import { Pool } from "./utils"
 
 const matrix = new Pool(Matrix4, 5)
@@ -40,78 +37,7 @@ export interface MeshShader<T> {
   setMaterial(material: T): void
   use(): void
   createVertexSpec(mesh: MeshGeometry): VertexSpecification
-  setWorldMatrix(world: Matrix4): void
-}
-
-export class DiffuseShader extends Shader implements MeshShader<DiffuseMaterial> {
-  constructor() {
-    super(
-      fs.readFileSync(__dirname + "/content/shaders/basic.vert", "utf8"),
-      fs.readFileSync(__dirname + "/content/shaders/basic.frag", "utf8"))
-    this.use()
-    this.setLightDiffuse(new Color(1, 1, 1, 1))
-    this.setLightDirection(new Vector3(-1, -1, -1))
-    this.setLightAmbient(new Color(0.3, 0.3, 0.3))
-  }
-
-  setLightAmbient(value: Color) {
-    let [r, g, b] = value
-    this.uniform["light.ambient"] = [r, g, b]
-  }
-
-  setLightDiffuse(value: Color) {
-    let [r, g, b] = value
-    this.uniform["light.diffuse"] = [r, g, b]
-  }
-
-  setLightDirection(value: Vector3) {
-    this.uniform["light.direction"] = value
-  }
-
-  setMaterial(material: DiffuseMaterial) {
-    if (material.diffuseMap) {
-      this.uniform["material.enableDiffuseMap"] = 1
-      material.diffuseMap.use()
-    } else {
-      this.uniform["material.enableDiffuseMap"] = 0
-    }
-    this.uniform["material.diffuse"] = material.diffuse
-  }
-
-  setWorldMatrix(world: Matrix4) {
-    this.uniform["model"] = world
-  }
-
-  setProjection(projection: Matrix4) {
-    this.uniform["projection"] = projection
-  }
-
-  setView(view: Matrix4) {
-    this.uniform["view"] = view
-  }
-
-  createVertexSpec(mesh: MeshGeometry) {
-    let vertexSpec = new VertexSpecification([
-      VertexAttribute.vec3, VertexAttribute.vec3, VertexAttribute.vec2
-    ]);
-    let vertices = new Float32Array(mesh.vertices.length * 8)
-    for (let i = 0; i < mesh.vertices.length; i++) {
-      vertices.set(mesh.vertices[i], i * 8 + 0)
-      vertices.set(mesh.normals ?
-        mesh.normals[i] : [0, 0, 0], i * 8 + 3)
-      vertices.set(mesh.texCoords.length > 0 ?
-        mesh.texCoords[i] : [0, 0], i * 8 + 6)
-    }
-    vertexSpec.setIndexData(
-      new Uint32Array(mesh.triangles), BufferUsage.Static)
-    vertexSpec.setVertexData(vertices, BufferUsage.Static)
-    return vertexSpec
-  }
-}
-
-export class DiffuseMaterial {
-  diffuseMap: Texture2D
-  diffuse: Vector3
+  setWorld(world: Matrix4): void
 }
 
 /**
@@ -163,7 +89,7 @@ export class Model<T> implements Component {
   draw() {
     this.shader.use()
     for (let mesh of this.meshes) {
-      this.shader.setWorldMatrix(mesh.getWorldMatrix(matrix.next()))
+      this.shader.setWorld(mesh.getWorldMatrix(matrix.next()))
       this.shader.setMaterial(mesh.material)
       mesh.vertexSpec.drawIndexed(
         PrimitiveType.Triangles, mesh.geometry.triangles.length)
