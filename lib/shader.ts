@@ -31,10 +31,16 @@ import { Texture2D } from "./texture"
 import { Vector3, Matrix4 } from "./math"
 
 export class Shader {
+  private static currentProgram: number
+  
   readonly program: number
   readonly uniform = new Proxy({}, {
     set: (target: any, p: string, value: any, receiver: any) => {
-      return this.setUniform(p, value)
+      let result: boolean
+      this.useTemporary(() => {
+        result = this.setUniform(p, value)
+      })
+      return result
     }
   })
 
@@ -60,7 +66,23 @@ export class Shader {
   }
 
   use() {
+    if (this.program === Shader.currentProgram) {
+      return
+    }
     gl.useProgram(this.program)
+    Shader.currentProgram = this.program
+  }
+
+  private useTemporary(usage: () => void) {
+    if (this.program === Shader.currentProgram) {
+      usage()
+    } else {
+      gl.useProgram(this.program)
+      usage()
+      if (Shader.currentProgram) {
+        gl.useProgram(Shader.currentProgram)
+      }
+    }
   }
 
   private setUniform(name: string, value: any) {
@@ -108,7 +130,6 @@ export class BasicShader extends Shader implements MeshShader<AssimpMaterial> {
     super(
       fs.readFileSync(__dirname + "/content/shaders/basic.vert", "utf8"),
       fs.readFileSync(__dirname + "/content/shaders/basic.frag", "utf8"))
-    this.use()
     this.setLightDiffuse(new Vector3(1, 1, 1))
     this.setLightDirection(new Vector3(-1, -1, -1))
     this.setLightAmbient(new Vector3(0.3, 0.3, 0.3))
