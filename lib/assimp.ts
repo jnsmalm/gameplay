@@ -29,10 +29,6 @@ import { VertexSpecification, VertexAttribute, PrimitiveType, BufferUsage } from
 import { Component } from "./entity"
 import { Model, MeshShader, Mesh } from "./mesh"
 
-export interface AssimpCustomMaterial<T> {
-  new (material: AssimpMaterial): T
-}
-
 /**
  * Default material used when reading from assimp2json
  */
@@ -41,14 +37,15 @@ export class AssimpMaterial {
   diffuseColor = new Vector3(1, 1, 1)
   diffuseMap: Texture2D
   specularColor = new Vector3(1, 1, 1)
+}
 
-  constructor(material: AssimpMaterial) {
-    if (material) {
-      this.ambientColor = material.ambientColor
-      this.diffuseColor = material.diffuseColor
-      this.diffuseMap = material.diffuseMap
-      this.specularColor = material.specularColor
-    }
+export interface AssimpMaterialConverter<T> {
+  convert(material: AssimpMaterial): T
+}
+
+class DefaultAssimpMaterialConverter implements AssimpMaterialConverter<AssimpMaterial> {
+  convert(material: AssimpMaterial) {
+    return material
   }
 }
 
@@ -59,17 +56,18 @@ export module Assimp {
   /**
    * Creates a model from a assimp2json file.
    */
-  export function createModelCustomMaterial<T>(filePath: string, shader: MeshShader<T>, customMaterial: AssimpCustomMaterial<T>) {
+  export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, materialConverter: AssimpMaterialConverter<T>) {
     let data = JSON.parse(fs.readFileSync(filePath, "utf8"));
     let reader = new AssimpReader<T>(
-      filePath.replace(/[^\/]*$/, ''), data, shader, customMaterial);
+      filePath.replace(/[^\/]*$/, ''), data, shader, materialConverter);
     let model = new Model<T>(shader)
     model.meshes = reader.readNodeHierarchy(data.rootnode, model.transform);
     return model
   }
 
-  export function createModel(filePath: string, shader: MeshShader<AssimpMaterial>) {
-    return createModelCustomMaterial(filePath, shader, AssimpMaterial)
+  export function createModelFromFile(filePath: string, shader: MeshShader<AssimpMaterial>) {
+    return createModelFromFileCustomMaterial(
+      filePath, shader, new DefaultAssimpMaterialConverter())
   }
 }
 
@@ -77,7 +75,7 @@ class AssimpReader<T> {
   textures: { [filepath: string]: Texture2D } = {}
 
   constructor(private path: string, private data: any,
-    private shader: MeshShader<T>, private customMaterial: AssimpCustomMaterial<T>) { }
+    private shader: MeshShader<T>, private materialConverter: AssimpMaterialConverter<T>) { }
 
   static readTransformation(transformation: number[]) {
     let matrix = new Matrix4()
@@ -143,7 +141,7 @@ class AssimpReader<T> {
   }
 
   readMaterial(data: any) {
-    let material = new AssimpMaterial(null)
+    let material = new AssimpMaterial()
     for (let i = 0; i < data.properties.length; i++) {
       let value = data.properties[i].value
       switch (data.properties[i].key) {
@@ -182,6 +180,6 @@ class AssimpReader<T> {
         }
       }
     }
-    return new this.customMaterial(material)
+    return this.materialConverter.convert(material)
   }
 }
