@@ -23,7 +23,7 @@ SOFTWARE.*/
 import * as gl from "gameplay/opengl"
 import * as fs from "fs"
 
-import { MeshShader, MeshGeometry } from "./mesh"
+import { MeshShader, MeshGeometry, MeshGeometryAttribute } from "./mesh"
 import { Color } from "./color"
 import { AssimpMaterial } from "./assimp"
 import { VertexSpecification, VertexAttribute, BufferUsage } from "./vertex"
@@ -135,6 +135,14 @@ export class BasicShader extends Shader implements MeshShader<AssimpMaterial> {
     this.setLightAmbient(new Vector3(0.3, 0.3, 0.3))
   }
 
+  get attributes() {
+    return [
+      MeshGeometryAttribute.Position, 
+      MeshGeometryAttribute.Normal,
+      MeshGeometryAttribute.TextureCoordinate
+    ]
+  }
+
   setLightAmbient(value: Vector3) {
     this.uniform["light.ambient"] = value
   }
@@ -167,23 +175,5 @@ export class BasicShader extends Shader implements MeshShader<AssimpMaterial> {
 
   setView(view: Matrix4) {
     this.uniform["view"] = view
-  }
-
-  createVertexSpec(mesh: MeshGeometry) {
-    let vertexSpec = new VertexSpecification([
-      VertexAttribute.vec3, VertexAttribute.vec3, VertexAttribute.vec2
-    ]);
-    let vertices = new Float32Array(mesh.vertices.length * 8)
-    for (let i = 0; i < mesh.vertices.length; i++) {
-      vertices.set(mesh.vertices[i], i * 8 + 0)
-      vertices.set(mesh.normals ?
-        mesh.normals[i] : [0, 0, 0], i * 8 + 3)
-      vertices.set(mesh.texCoords.length > 0 ?
-        mesh.texCoords[i] : [0, 0], i * 8 + 6)
-    }
-    vertexSpec.setIndexData(
-      new Uint32Array(mesh.triangles), BufferUsage.Static)
-    vertexSpec.setVertexData(vertices, BufferUsage.Static)
-    return vertexSpec
   }
 }

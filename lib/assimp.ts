@@ -136,7 +136,7 @@ class AssimpReader<T> {
     for (var i = 0; i < data.faces.length; i++) {
       mesh.geometry.triangles.push(...data.faces[i])
     }
-    mesh.vertexSpec = this.shader.createVertexSpec(mesh.geometry)
+    mesh.vertexSpec = mesh.geometry.createVertexSpec(this.shader.attributes)
     return mesh
   }
 

@@ -24,7 +24,7 @@ import * as fs from "fs"
 
 import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
-import { VertexSpecification, PrimitiveType } from "./vertex"
+import { VertexSpecification, PrimitiveType, VertexAttribute, BufferUsage } from "./vertex"
 import { Component } from "./entity"
 import { Pool } from "./utils"
 
@@ -36,8 +36,14 @@ const matrix = new Pool(Matrix4, 5)
 export interface MeshShader<T> {
   setMaterial(material: T): void
   use(): void
-  createVertexSpec(mesh: MeshGeometry): VertexSpecification
+  attributes: MeshGeometryAttribute[]
   setWorld(world: Matrix4): void
+}
+
+export enum MeshGeometryAttribute {
+  Position,
+  Normal,
+  TextureCoordinate
 }
 
 /**
@@ -48,6 +54,60 @@ export class MeshGeometry {
   normals: Vector3[] = []
   texCoords: Vector2[] = []
   triangles: number[] = []
+
+  createVertexSpec(attributes: MeshGeometryAttribute[]) {
+    let vertexLength = 0
+    let vertexAttributes: VertexAttribute[] = []
+
+    for (let attr of attributes) {
+      switch (attr) {
+        case MeshGeometryAttribute.Position:
+        case MeshGeometryAttribute.Normal: {
+          vertexAttributes.push(VertexAttribute.vec3)
+          vertexLength += 3
+          break
+        }
+        case MeshGeometryAttribute.TextureCoordinate: {
+          vertexAttributes.push(VertexAttribute.vec2)
+          vertexLength += 2
+          break
+        }
+      }
+    }
+    let vertexSpec = new VertexSpecification(vertexAttributes);
+    let vertexData = new Float32Array(this.vertices.length * vertexLength)
+    let position = 0
+
+    for (let attr of attributes) {
+      switch (attr) {
+        case MeshGeometryAttribute.Position: {
+          for (let i = 0; i < this.vertices.length; i++) {
+            vertexData.set(this.vertices[i], i * vertexLength + position)
+          }
+          position += 3
+          break
+        }
+        case MeshGeometryAttribute.Normal: {
+          for (let i = 0; i < this.normals.length; i++) {
+            vertexData.set(this.normals[i], i * vertexLength + position)
+          }
+          position += 3
+          break
+        }
+        case MeshGeometryAttribute.TextureCoordinate: {
+          for (let i = 0; i < this.texCoords.length; i++) {
+            vertexData.set(this.texCoords[i], i * vertexLength + position)
+          }
+          position += 2
+          break
+        }
+      }
+    }
+    vertexSpec.setIndexData(new Uint32Array(this.triangles), BufferUsage.Static)
+    vertexSpec.setVertexData(vertexData, BufferUsage.Static)
+
+    return vertexSpec
+  }
 }
 
 /**
