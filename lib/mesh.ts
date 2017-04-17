@@ -34,13 +34,13 @@ const matrix = new Pool(Matrix4, 5)
  * Represents a shader used when drawing a mesh.
  */
 export interface MeshShader<T> {
-  setMaterial(material: T): void
+  input: MeshShaderInput[]
   use(): void
-  attributes: MeshGeometryAttribute[]
+  setMaterial(material: T): void
   setWorld(world: Matrix4): void
 }
 
-export enum MeshGeometryAttribute {
+export enum MeshShaderInput {
   Position,
   Normal,
   TextureCoordinate
@@ -55,19 +55,19 @@ export class MeshGeometry {
   texCoords: Vector2[] = []
   triangles: number[] = []
 
-  createVertexSpec(attributes: MeshGeometryAttribute[]) {
+  createVertexSpec(input: MeshShaderInput[]) {
     let vertexLength = 0
     let vertexAttributes: VertexAttribute[] = []
 
-    for (let attr of attributes) {
+    for (let attr of input) {
       switch (attr) {
-        case MeshGeometryAttribute.Position:
-        case MeshGeometryAttribute.Normal: {
+        case MeshShaderInput.Position:
+        case MeshShaderInput.Normal: {
           vertexAttributes.push(VertexAttribute.vec3)
           vertexLength += 3
           break
         }
-        case MeshGeometryAttribute.TextureCoordinate: {
+        case MeshShaderInput.TextureCoordinate: {
           vertexAttributes.push(VertexAttribute.vec2)
           vertexLength += 2
           break
@@ -78,23 +78,23 @@ export class MeshGeometry {
     let vertexData = new Float32Array(this.vertices.length * vertexLength)
     let position = 0
 
-    for (let attr of attributes) {
+    for (let attr of input) {
       switch (attr) {
-        case MeshGeometryAttribute.Position: {
+        case MeshShaderInput.Position: {
           for (let i = 0; i < this.vertices.length; i++) {
             vertexData.set(this.vertices[i], i * vertexLength + position)
           }
           position += 3
           break
         }
-        case MeshGeometryAttribute.Normal: {
+        case MeshShaderInput.Normal: {
           for (let i = 0; i < this.normals.length; i++) {
             vertexData.set(this.normals[i], i * vertexLength + position)
           }
           position += 3
           break
         }
-        case MeshGeometryAttribute.TextureCoordinate: {
+        case MeshShaderInput.TextureCoordinate: {
           for (let i = 0; i < this.texCoords.length; i++) {
             vertexData.set(this.texCoords[i], i * vertexLength + position)
           }

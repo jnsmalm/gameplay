@@ -23,7 +23,7 @@ SOFTWARE.*/
 import * as gl from "gameplay/opengl"
 import * as fs from "fs"
 
-import { MeshShader, MeshGeometry, MeshGeometryAttribute } from "./mesh"
+import { MeshShader, MeshGeometry, MeshShaderInput } from "./mesh"
 import { Color } from "./color"
 import { AssimpMaterial } from "./assimp"
 import { VertexSpecification, VertexAttribute, BufferUsage } from "./vertex"
@@ -135,11 +135,11 @@ export class BasicShader extends Shader implements MeshShader<AssimpMaterial> {
     this.setLightAmbient(new Vector3(0.3, 0.3, 0.3))
   }
 
-  get attributes() {
+  get input() {
     return [
-      MeshGeometryAttribute.Position, 
-      MeshGeometryAttribute.Normal,
-      MeshGeometryAttribute.TextureCoordinate
+      MeshShaderInput.Position, 
+      MeshShaderInput.Normal,
+      MeshShaderInput.TextureCoordinate
     ]
   }
 
