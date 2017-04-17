@@ -34,9 +34,12 @@ import { Model, MeshShader, Mesh } from "./mesh"
  */
 export class AssimpMaterial {
   ambientColor = new Vector3(1, 1, 1)
-  diffuseColor = new Vector3(1, 1, 1)
-  diffuseMap: Texture2D
+  specularMap: Texture2D
   specularColor = new Vector3(1, 1, 1)
+  normalMap: Texture2D
+  heightMap: Texture2D
+  diffuseMap: Texture2D
+  diffuseColor = new Vector3(1, 1, 1)
 }
 
 export interface AssimpMaterialConverter<T> {
@@ -152,6 +155,18 @@ class AssimpReader<T> {
           switch (data.properties[i].semantic) {
             case 1: {
               material.diffuseMap = this.textures[value]
+              break;
+            }
+            case 2: {
+              material.specularMap = this.textures[value]
+              break;
+            }
+            case 5: {
+              material.heightMap = this.textures[value]
+              break;
+            }
+            case 6: {
+              material.normalMap = this.textures[value]
               break;
             }
           }
