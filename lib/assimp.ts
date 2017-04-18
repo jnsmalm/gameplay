@@ -72,6 +72,10 @@ export module Assimp {
     return createModelFromFileCustomMaterial(
       filePath, shader, new DefaultAssimpMaterialConverter())
   }
+
+  export const boxFilePath = __dirname + "/content/models/box.json"
+
+  export const sphereFilePath = __dirname + "/content/models/sphere.json"
 }
 
 class AssimpReader<T> {
@@ -131,10 +135,12 @@ class AssimpReader<T> {
         data.normals[i], data.normals[i + 1], data.normals[i + 2]
       ))
     }
-    for (var i = 0; i < data.texturecoords[0].length; i += 2) {
-      mesh.geometry.texCoords.push(new Vector2(
-        data.texturecoords[0][i], 1 - data.texturecoords[0][i + 1]
-      ))
+    if (data.texturecoords) {
+      for (var i = 0; i < data.texturecoords[0].length; i += 2) {
+        mesh.geometry.texCoords.push(new Vector2(
+          data.texturecoords[0][i], 1 - data.texturecoords[0][i + 1]
+        ))
+      }
     }
     for (var i = 0; i < data.faces.length; i++) {
       mesh.geometry.triangles.push(...data.faces[i])
