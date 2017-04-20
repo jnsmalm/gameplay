@@ -1,5 +1,6 @@
 export * from "./assimp"
 export * from "./camera"
+export * from "./collision"
 export * from "./color"
 export * from "./coroutine"
 export * from "./entity"
