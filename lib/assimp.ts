@@ -42,12 +42,12 @@ export class AssimpMaterial {
   diffuseColor = new Vector3(1, 1, 1)
 }
 
-export interface AssimpMaterialConverter<T> {
-  convert(material: AssimpMaterial): T
+export interface AssimpMaterialFactory<T> {
+  create(material: AssimpMaterial): T
 }
 
-class DefaultAssimpMaterialConverter implements AssimpMaterialConverter<AssimpMaterial> {
-  convert(material: AssimpMaterial) {
+class DefaultAssimpMaterialFactory implements AssimpMaterialFactory<AssimpMaterial> {
+  create(material: AssimpMaterial) {
     return material
   }
 }
@@ -59,10 +59,10 @@ export module Assimp {
   /**
    * Creates a model from a assimp2json file.
    */
-  export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, materialConverter: AssimpMaterialConverter<T>) {
+  export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, factory: AssimpMaterialFactory<T>) {
     let data = JSON.parse(fs.readFileSync(filePath, "utf8"));
     let reader = new AssimpReader<T>(
-      filePath.replace(/[^\/]*$/, ''), data, shader, materialConverter);
+      filePath.replace(/[^\/]*$/, ''), data, shader, factory);
     let model = new Model<T>(shader)
     model.meshes = reader.readNodeHierarchy(data.rootnode, model.transform);
     return model
@@ -70,7 +70,7 @@ export module Assimp {
 
   export function createModelFromFile(filePath: string, shader: MeshShader<AssimpMaterial>) {
     return createModelFromFileCustomMaterial(
-      filePath, shader, new DefaultAssimpMaterialConverter())
+      filePath, shader, new DefaultAssimpMaterialFactory())
   }
 
   export const boxFilePath = __dirname + "/content/models/box.json"
@@ -82,7 +82,7 @@ class AssimpReader<T> {
   textures: { [filepath: string]: Texture2D } = {}
 
   constructor(private path: string, private data: any,
-    private shader: MeshShader<T>, private materialConverter: AssimpMaterialConverter<T>) { }
+    private shader: MeshShader<T>, private factory: AssimpMaterialFactory<T>) { }
 
   static readTransformation(transformation: number[]) {
     let matrix = new Matrix4()
@@ -201,6 +201,6 @@ class AssimpReader<T> {
         }
       }
     }
-    return this.materialConverter.convert(material)
+    return this.factory.create(material)
   }
 }
