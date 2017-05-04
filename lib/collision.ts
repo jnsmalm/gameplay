@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 import { Vector3 } from "./math"
+import { Component } from "./entity"
 import { Pool } from "./utils"
 import { Transform } from "./transform"
 
@@ -117,7 +118,7 @@ export class Shape {
   }
 }
 
-export class SphereCollider implements Collider<SphereCollider> {
+export class SphereCollider implements Component, Collider<SphereCollider> {
   private shape = new Shape()
   transform = new Transform()
 
@@ -144,17 +145,17 @@ export class SphereCollider implements Collider<SphereCollider> {
     // We need to multiply the radius with the scaling. We must choose a 
     // single component of the scaling, we choose the 'x' component.
     this.shape.radius = 
-      this.radius * this.transform.getScaling(vector.next())[0];
+      this.radius * this.transform.getScaling(vector.next())[0]
   }
 
   isColliding(collider: SphereCollider, mtv?: Vector3) {
-    let axes: Vector3[] = [];
+    let axes: Vector3[] = []
 
     // For two spheres there is only one axis test
     let axis = Vector3.subtract(
       this.shape.center, collider.shape.center, vector.next());
-    axes.push(axis.normalize(axis));
+    axes.push(axis.normalize(axis))
     
-    return Shape.isIntersecting(this.shape, collider.shape, axes, mtv);
+    return Shape.isIntersecting(this.shape, collider.shape, axes, mtv)
   }
 }
