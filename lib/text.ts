@@ -30,31 +30,8 @@ import { Component } from "./entity"
 import { Transform } from "./transform"
 
 class FontGlyph {
-  constructor(readonly index: number, readonly advanceWidth: number,
-    readonly source: Rectangle, readonly offset: Vector2,
-    readonly leftSideBearing: number) {
-  }
-}
-
-class GlyphPacker {
-  nextPosition = new Vector2()
-  maxRowHeight = 0
-
-  getGlyphPosition(width: number, height: number) {
-    let position = new Vector2();
-    position.set(this.nextPosition)
-    if (position.x + width > 1024) {
-      position.set([0, position.y + this.maxRowHeight + 1])
-      this.maxRowHeight = 0
-      this.nextPosition.set(position)
-    }
-    if (position.y + height > 1024) {
-      throw new TypeError("Failed to fit glyph characters.")
-    }
-    this.nextPosition.x += width + 1
-    this.maxRowHeight = Math.max(height, this.maxRowHeight)
-    return position
-  }
+  constructor(readonly advance: number, readonly source: Rectangle,
+    readonly offset: Vector2) { }
 }
 
 /**
@@ -64,10 +41,10 @@ export class FontTexture extends Texture2D {
   private _fontInfo: stbtt.FontInfo
   private _buffer: Buffer
 
-  readonly ascent: number
-  readonly descent: number
-  readonly glyphs: { [char: string]: FontGlyph }
   readonly pixelHeightScale: number
+  readonly glyphs: {
+    [char: string]: FontGlyph
+  } = {}
 
   /**
    * Creates a new font texture.
@@ -84,15 +61,29 @@ export class FontTexture extends Texture2D {
 
     this.pixelHeightScale =
       stbtt.scaleForPixelHeight(this._fontInfo, pixelHeight)
-    this.glyphs = {}
-    let fontMetrics = stbtt.getFontVMetrics(this._fontInfo)
 
-    this.ascent = fontMetrics.ascent * this.pixelHeightScale
-    this.descent = fontMetrics.descent * this.pixelHeightScale
+    let codepoints = chars.split("").map(x => x.charCodeAt(0))
+    let ranges = [{
+      unicodeCodepoints: new Int32Array(codepoints),
+      fontSize: pixelHeight,
+      numChars: codepoints.length
+    }]
+    let bitmap = new Uint8Array(this.width * this.height)
+    let context = stbtt.packBegin(bitmap, this.width, this.height, 0, 1)
 
-    let glyphPacker = new GlyphPacker()
-    for (let char of chars) {
-      this.createGlyph(char, glyphPacker)
+    // Because we only use a single pack range, we only get back a single 
+    // packed char array.
+    let packed = stbtt.packFontRanges(context, this._buffer, 0, ranges)[0]
+    stbtt.packEnd(context)
+
+    // Convert to RGBA to be able to render with sprite batch shader.
+    this.setData(this.convertToRGBA(bitmap))
+
+    for (let i = 0; i < packed.length; i++) {
+      let pc = packed[i]
+      this.glyphs[chars[i]] = new FontGlyph(pc.xadvance,
+        new Rectangle(pc.x0, pc.y0, pc.x1 - pc.x0, pc.y1 - pc.y0), 
+        new Vector2(pc.xoff, pc.yoff))
     }
   }
 
@@ -105,40 +96,17 @@ export class FontTexture extends Texture2D {
     if (ch1 === " " || ch2 === " ") {
       return 0
     }
-    let glyph1 = this.glyphs[ch1].index
-    let glyph2 = this.glyphs[ch2].index
-    return stbtt.getGlyphKernAdvance(
-      this._fontInfo, glyph1, glyph2) * this.pixelHeightScale
+    return stbtt.getCodepointKernAdvance(this._fontInfo,
+      ch1.charCodeAt(0), ch2.charCodeAt(0)) * this.pixelHeightScale
   }
 
   private convertToRGBA(bitmapData: Uint8Array) {
-    let rgba = []
+    let rgba = new Uint8Array(bitmapData.length * 4)
+    rgba.fill(255)
     for (let i = 0; i < bitmapData.length; i++) {
-      rgba.push(255, 255, 255, bitmapData[i])
+      rgba[3 + i * 4] = bitmapData[i]
     }
-    return new Uint8Array(rgba)
-  }
-
-  private createGlyph(char: string, packer: GlyphPacker) {
-    let index = stbtt.findGlyphIndex(this._fontInfo, char.charCodeAt(0))
-    if (index === 0) {
-      throw new TypeError(`Failed to find glyph index for \"${char}\".`)
-    }
-    let bitmap = stbtt.getGlyphBitmap(
-      this._fontInfo, 0, this.pixelHeightScale, index)
-    let position = packer.getGlyphPosition(bitmap.width, bitmap.height)
-    let source = new Rectangle(
-      position.x, position.y, bitmap.width, bitmap.height)
-
-    this.setSubData(position.x, position.y,
-      bitmap.width, bitmap.height, this.convertToRGBA(bitmap.data))
-
-    let metrics = stbtt.getGlyphHMetrics(this._fontInfo, index)
-    let advanceWidth = metrics.advanceWidth * this.pixelHeightScale
-    let offset = new Vector2(bitmap.xoff, bitmap.yoff)
-
-    this.glyphs[char] = new FontGlyph(index, advanceWidth, source, offset,
-      metrics.leftSideBearing * this.pixelHeightScale)
+    return rgba
   }
 }
 
@@ -214,7 +182,7 @@ export class Text implements Component {
         width += this.wordSpacingWidth
         continue
       }
-      width += this.font.glyphs[this._text[i]].advanceWidth
+      width += this.font.glyphs[this._text[i]].advance
     }
     return width
   }
@@ -254,22 +222,21 @@ export class Text implements Component {
       }
       let kerning = i < this._text.length - 1 ?
         this.font.getKerning(this._text[i], this._text[i + 1]) : 0
-
       let glyph = this.font.glyphs[this._text[i]]
-      let p = new Vector2(position.x + glyph.offset.x, position.y)
 
-      this.setupSpriteAsGlyph(this.sprites[i], glyph, p)
-      position.x += glyph.advanceWidth + kerning
+      this.setupSpriteAsGlyph(this.sprites[i], glyph,
+        new Vector2(position.x + glyph.offset.x, position.y))
+      position.x += glyph.advance + kerning
     }
   }
 
-  private setupSpriteAsGlyph(
-    sprite: Sprite, glyph: FontGlyph, position: Vector2) {
-    sprite.origin = new Vector2(0, 0)
+  private setupSpriteAsGlyph(sprite: Sprite, glyph: FontGlyph, position: Vector2) {
     sprite.pixelsPerUnit = this.pixelsPerUnit
     sprite.source = glyph.source
     sprite.transform.localPosition.x = position.x / this.pixelsPerUnit
     sprite.transform.localPosition.y =
       position.y - glyph.offset.y / this.pixelsPerUnit
+    sprite.transform.parent = this.transform
+    sprite.origin = new Vector2(0, 0)
   }
 }
