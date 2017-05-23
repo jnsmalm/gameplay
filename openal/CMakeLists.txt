@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 # Name of the project (will be the name of the plugin)
 project(gameplay-openal)
 
+set(LIBTYPE "STATIC")
 add_subdirectory(../deps/openal-soft bin)
 
 # Build a shared library named after the project from the files in `src/`
