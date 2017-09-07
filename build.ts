@@ -6,6 +6,7 @@ import * as archiver from "archiver"
 import * as targz from "targz"
 import * as path from "path"
 import * as unzip from "unzip"
+import * as cpx from "cpx"
 
 const nodever = "7.7.3"
 const gamever = "0.7.9"
@@ -42,14 +43,33 @@ async function copy(src: string, dest: string) {
   })
 }
 
-async function build(addon: string) {
-  await execute("cmake-js", ["rebuild", "-d", addon, "-v", nodever])
-  await copy(`${addon}/build/release/gameplay-${addon}.node`,
-    `dist/node_modules/gameplay/${addon}/${addon}.node`)
-  await copy(`${addon}/index.js`,
-    `dist/node_modules/gameplay/${addon}/index.js`)
-  await copy(`${addon}/index.d.ts`,
-    `dist/node_modules/gameplay/${addon}/index.d.ts`)
+async function copyglob(src: string, dest: string) {
+  return new Promise<void>((resolve) => {
+    cpx.copy(src, dest, resolve)
+  })
+}
+
+class Addon {
+  constructor(protected name: string) {
+  }
+  async build() {
+    await execute("cmake-js", ["rebuild", "-d", this.name, "-v", nodever])
+    await copy(`${this.name}/build/release/gameplay-${this.name}.node`,
+      `dist/node_modules/gameplay/${this.name}/${this.name}.node`)
+    await copyglob(
+      `${this.name}/index*.*`, `dist/node_modules/gameplay/${this.name}`)
+  }
+}
+
+class OpenAL extends Addon {
+  constructor() {
+    super("openal")
+  }
+  async build() {
+    await super.build()
+    await copyglob(`${this.name}/build/release/Open*.{dll,dylib}`, 
+      `dist/node_modules/gameplay/${this.name}`)
+  }
 }
 
 interface Platform {
@@ -83,12 +103,11 @@ class Macos implements Platform {
   archive(dir: string, filename: string) {
     console.log(`archive ${filename}...`)
     return new Promise<void>((resolve) => {
-      process.chdir(dir)
-      const output = fs.createWriteStream(__dirname + filename)
+      const output = fs.createWriteStream(__dirname + filename + ".tar.gz")
         .on("close", resolve);
       const archive = archiver('tar', { gzip: true });
       archive.pipe(output);
-      archive.directory(".");
+      archive.directory(`${dir}/`, false);
       archive.finalize();
     })
   }
@@ -100,7 +119,7 @@ class Win32 implements Platform {
   }
 
   get nodeexe() {
-    return `node-v${nodever}-win-x64/bin/node.exe`
+    return `node-v${nodever}-win-x64/node.exe`
   }
 
   get name() {
@@ -110,7 +129,7 @@ class Win32 implements Platform {
   extract(filename: string, dest: string) {
     console.log(`extract ${filename}...`)
     return new Promise<void>((resolve) => {
-      const stream = fs.createWriteStream(__dirname + filename)
+      const stream = fs.createReadStream(path.join(__dirname, filename))
         .on("close", resolve); 
       stream.pipe(unzip.Extract({ path: dest }));
     })
@@ -119,12 +138,11 @@ class Win32 implements Platform {
   archive(dir: string, filename: string) {
     console.log(`archive ${filename}...`)
     return new Promise<void>((resolve) => {
-      process.chdir(dir)
-      const output = fs.createWriteStream(__dirname + filename)
+      const output = fs.createWriteStream(__dirname + filename + ".zip")
         .on("close", resolve);
       const archive = archiver("zip", { store: false });
       archive.pipe(output);
-      archive.directory(".");
+      archive.directory(`${dir}/`, false);
       archive.finalize();
     })
   }
@@ -143,25 +161,22 @@ switch (os.platform()) {
 }
 
 function* addons() {
-  yield "openal"
-  yield "opengl"
-  yield "glfw"
-  yield "truetype"
-  yield "image"
-  yield "vorbis"
+  yield new OpenAL()
+  yield new Addon("opengl")
+  yield new Addon("glfw")
+  yield new Addon("truetype")
+  yield new Addon("image")
+  yield new Addon("vorbis")
 }
 
 (async function () {
   for (let addon of addons()) {
-    await build(addon)
+    await addon.build()
   }
   await download(platform.nodeurl, "node.tar.gz")
   await platform.extract("node.tar.gz", ".")
   await copy(platform.nodeexe, `dist/bin/${path.basename(platform.nodeexe)}`)
-  await copy("README.md", "dist/README.md")
-  await copy("LICENSE", "dist/LICENSE")
-  await copy("tsconfig.json", "dist/tsconfig.json")
+  await copyglob("{LICENSE,tsconfig.json}", "dist")
   await copy("lib", "dist/node_modules/gameplay/lib")
-  await platform.archive("dist", 
-    `/gameplay-v${gamever}-${platform.name}-x64.tar.gz`)
+  await platform.archive("dist", `/gameplay-v${gamever}-${platform.name}-x64`)
 })()
