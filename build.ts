@@ -9,7 +9,7 @@ import * as unzip from "unzip"
 import * as cpx from "cpx"
 
 const nodever = "7.7.3"
-const gamever = "0.7.9"
+const gamever = "0.8.0"
 
 function download(url: string, filename: string) {
   console.log(`download ${url}...`)
