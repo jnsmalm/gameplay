@@ -24,17 +24,18 @@ import { UpdatableDrawable } from "./entity"
 
 export class Coroutine implements UpdatableDrawable {
   private result: IteratorResult<WaitInstruction>
+
   destroyed = false
 
-  constructor(private iterator: IterableIterator<WaitInstruction>) {
-  }
+  constructor(private iterator: IterableIterator<WaitInstruction>) { }
+
   update(elapsedTime: number) {
     let wait = this.result ? this.result.value : null
     if (wait && wait.update) {
       wait.update(elapsedTime)
     }
     if (!wait || wait.resume) {
-      this.result = this.iterator.next(elapsedTime)
+      this.result = this.iterator.next()
     }
     this.destroyed = this.result && this.result.done
   }
@@ -45,13 +46,13 @@ export interface WaitInstruction {
   update?(elapsedTime: number): void
 }
 
-export class WaitForNextFrame implements WaitInstruction {
+export class WaitForNextUpdate implements WaitInstruction {
   private _elapsedTime = 0
   get elapsedTime() {
     return this._elapsedTime
   }
   get resume() {
-    return true
+    return this._elapsedTime > 0
   }
   update(elapsedTime: number) {
     this._elapsedTime = elapsedTime

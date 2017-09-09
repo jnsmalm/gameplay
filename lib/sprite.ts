@@ -53,6 +53,7 @@ export class Rectangle {
  */
 export class Sprite implements Component {
   transform = new Transform()
+  opacity = 1
   origin = new Vector2(0.5, 0.5)
   drawOrder = 0
   pixelsPerUnit = 100
@@ -115,6 +116,7 @@ export class SpriteBatch {
   constructor(public camera: Camera, private maxBatchSize = 2000) {
     this.vertexSpec = new VertexSpecification([
       VertexAttribute.vec3,
+      VertexAttribute.float,
       VertexAttribute.vec2
     ])
     this.shader = Shader.createFromFile(
@@ -251,16 +253,16 @@ class SpriteVertexArray extends Float32Array {
     let world = sprite.transform.getWorldMatrix(this.matrix)
     let uv = this.getTextureCoordinates(sprite)
     let rect = this.getRectangle(sprite)
-    this.addVertex(rect.x, rect.y, uv.x, uv.y, world)
-    this.addVertex(rect.r, rect.y, uv.r, uv.y, world)
-    this.addVertex(rect.x, rect.b, uv.x, uv.b, world)
-    this.addVertex(rect.r, rect.b, uv.r, uv.b, world)
+    this.addVertex(rect.x, rect.y, uv.x, uv.y, world, sprite.opacity)
+    this.addVertex(rect.r, rect.y, uv.r, uv.y, world, sprite.opacity)
+    this.addVertex(rect.x, rect.b, uv.x, uv.b, world, sprite.opacity)
+    this.addVertex(rect.r, rect.b, uv.r, uv.b, world, sprite.opacity)
   }
 
   /**
    * Adds a single sprite vertex to the array.
    */
-  addVertex(x: number, y: number, u: number, v: number, world: Matrix4) {
+  addVertex(x: number, y: number, u: number, v: number, world: Matrix4, opacity: number) {
     this.vector[0] = x
     this.vector[1] = y
     this.vector[2] = 0
@@ -268,6 +270,7 @@ class SpriteVertexArray extends Float32Array {
     for (let i = 0; i < 3; i++) {
       this[this.offset++] = this.vector[i]
     }
+    this[this.offset++] = opacity
     this[this.offset++] = u
     this[this.offset++] = v
   }
