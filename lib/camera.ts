@@ -24,6 +24,7 @@ import { Vector3, Matrix4, Quaternion } from "./math"
 import { Pool } from "./utils"
 import { Transform } from "./transform"
 import { Window } from "./window"
+import { Component } from "./entity"
 
 const matrix = new Pool(Matrix4, 10)
 const vector = new Pool(Vector3, 10)
@@ -31,14 +32,16 @@ const vector = new Pool(Vector3, 10)
 /**
  * A camera is a device through which the world is viewed.
  */
-export class Camera {
+export class Camera implements Component {
   transform = new Transform()
+
   /**
    * Creates a new camera.
    */
   constructor(public aspect: number, public near = 0.1, public far = 1000,
     public fieldOfView = 45, public orthographic = false,
     public orthographicSize = 5) { }
+
   /**
    * Creates a new camera.
    */
@@ -49,6 +52,11 @@ export class Camera {
     camera.transform.localRotation.rotateY(180)
     return camera
   }
+
+  attach(transform: Transform) {
+    this.transform.parent = transform
+  }
+
   /**
    * Returns the projection matrix.
    */
@@ -61,6 +69,7 @@ export class Camera {
     return Matrix4.createPerspective(
       this.fieldOfView, this.aspect, this.near, this.far, out)
   }
+
   /**
    * Returns the view matrix.
    */
@@ -72,6 +81,7 @@ export class Camera {
     let center = Vector3.add(position, forward, vector.next())
     return Matrix4.createLookAt(position, center, up, out)
   }
+  
   /**
    * Returns the view projection matrix.
    */

@@ -22,11 +22,9 @@ SOFTWARE.*/
 
 import * as fs from "fs"
 
-import { Texture2D } from "./texture"
 import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
-import { VertexSpecification, VertexAttribute, PrimitiveType, BufferUsage } from "./vertex"
-import { Shader } from "./shader"
+import { VertexSpecification, PrimitiveType, VertexAttribute, BufferUsage } from "./vertex"
 import { Component } from "./entity"
 import { Pool } from "./utils"
 
@@ -36,20 +34,16 @@ const matrix = new Pool(Matrix4, 5)
  * Represents a shader used when drawing a mesh.
  */
 export interface MeshShader<T> {
-  setMaterial(material: T): void
+  input: MeshShaderInput[]
   use(): void
-  createVertexSpec(mesh: MeshGeometry): VertexSpecification
-  setWorldMatrix(world: Matrix4): void
+  setMaterial(material: T): void
+  setWorld(world: Matrix4): void
 }
 
-/**
- * Represents a material used when drawing a mesh.
- */
-export interface MeshMaterial {
-  /**
-   * Use this material when drawing a mesh.
-   */
-  use(): void
+export enum MeshShaderInput {
+  Position,
+  Normal,
+  TextureCoordinate
 }
 
 /**
@@ -60,16 +54,70 @@ export class MeshGeometry {
   normals: Vector3[] = []
   texCoords: Vector2[] = []
   triangles: number[] = []
+
+  createVertexSpec(input: MeshShaderInput[]) {
+    let vertexLength = 0
+    let vertexAttributes: VertexAttribute[] = []
+
+    for (let attr of input) {
+      switch (attr) {
+        case MeshShaderInput.Position:
+        case MeshShaderInput.Normal: {
+          vertexAttributes.push(VertexAttribute.vec3)
+          vertexLength += 3
+          break
+        }
+        case MeshShaderInput.TextureCoordinate: {
+          vertexAttributes.push(VertexAttribute.vec2)
+          vertexLength += 2
+          break
+        }
+      }
+    }
+    let vertexSpec = new VertexSpecification(vertexAttributes);
+    let vertexData = new Float32Array(this.vertices.length * vertexLength)
+    let position = 0
+
+    for (let attr of input) {
+      switch (attr) {
+        case MeshShaderInput.Position: {
+          for (let i = 0; i < this.vertices.length; i++) {
+            vertexData.set(this.vertices[i], i * vertexLength + position)
+          }
+          position += 3
+          break
+        }
+        case MeshShaderInput.Normal: {
+          for (let i = 0; i < this.normals.length; i++) {
+            vertexData.set(this.normals[i], i * vertexLength + position)
+          }
+          position += 3
+          break
+        }
+        case MeshShaderInput.TextureCoordinate: {
+          for (let i = 0; i < this.texCoords.length; i++) {
+            vertexData.set(this.texCoords[i], i * vertexLength + position)
+          }
+          position += 2
+          break
+        }
+      }
+    }
+    vertexSpec.setIndexData(new Uint32Array(this.triangles), BufferUsage.Static)
+    vertexSpec.setVertexData(vertexData, BufferUsage.Static)
+
+    return vertexSpec
+  }
 }
 
 /**
  * Represents a mesh containing geometry that describes the 3d object.
  */
-export class Mesh {
+export class Mesh<T> {
   geometry = new MeshGeometry()
   transform = new Transform()
   vertexSpec: VertexSpecification
-  material: MeshMaterial
+  material: T
 
   /**
    * Creates a new mesh.
@@ -87,7 +135,7 @@ export class Mesh {
 
 export class Model<T> implements Component {
   transform = new Transform()
-  meshes: Mesh[] = []
+  meshes: Mesh<T>[] = []
 
   /**
    * Creates a new model.
@@ -101,8 +149,8 @@ export class Model<T> implements Component {
   draw() {
     this.shader.use()
     for (let mesh of this.meshes) {
-      this.shader.setWorldMatrix(mesh.getWorldMatrix(matrix.next()))
-      mesh.material.use()
+      this.shader.setWorld(mesh.getWorldMatrix(matrix.next()))
+      this.shader.setMaterial(mesh.material)
       mesh.vertexSpec.drawIndexed(
         PrimitiveType.Triangles, mesh.geometry.triangles.length)
     }

@@ -46,6 +46,8 @@ export module Game {
 
   /** Creates a window, input devices and sets up the game loop. */
   export function init(options: GameOptions = {}) {
+    this.init = () => {}
+
     let {
       targetElapsedTime = 1 / 60,
       clearColor = new Color(0.3, 0.3, 0.3, 1),
@@ -81,6 +83,7 @@ export module Game {
 
   /** Starts running the game loop. */
   export function run() {
+    this.run = () => {}
     window.update()
     if (window.isClosing) {
       return

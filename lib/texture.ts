@@ -43,8 +43,21 @@ export enum TextureWrap {
   ClampToEdge = gl.CLAMP_TO_EDGE
 }
 
+export enum TextureUnit {
+  Texture0 = gl.TEXTURE0,
+  Texture1 = gl.TEXTURE1,
+  Texture2 = gl.TEXTURE2,
+  Texture3 = gl.TEXTURE3,
+  Texture4 = gl.TEXTURE4,
+  Texture5 = gl.TEXTURE5,
+  Texture6 = gl.TEXTURE6,
+  Texture7 = gl.TEXTURE7,
+}
+
 /** Represents a 2d grid of texels. */
 export class Texture2D {
+  private static currentBindings: { [unit: number]: number } = {}
+
   readonly texture: number
 
   /** Creates a new texture2d. */
@@ -74,15 +87,24 @@ export class Texture2D {
   }
 
   /** Uses this texture when drawing. */
-  use() {
+  use(unit: TextureUnit = TextureUnit.Texture0) {
+    if (this.texture === Texture2D.currentBindings[unit]) {
+      return
+    }
+    Texture2D.currentBindings[unit] = this.texture
+    gl.activeTexture(unit)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
   }
 
   private useTemporary(usage: () => void) {
-    let binding = gl.getParameter(gl.TEXTURE_BINDING_2D)
-    gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    usage()
-    gl.bindTexture(gl.TEXTURE_2D, binding)
+    if (this.texture === Texture2D.currentBindings[TextureUnit.Texture0]) {
+      usage()
+    } else {
+      gl.bindTexture(gl.TEXTURE_2D, this.texture)
+      usage()
+      gl.bindTexture(gl.TEXTURE_2D, 
+        Texture2D.currentBindings[TextureUnit.Texture0])
+    }
   }
 
   /** Sets the texture filter mode. */

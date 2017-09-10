@@ -26,10 +26,31 @@ import { Texture2D } from "./texture"
 import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
 import { VertexSpecification, VertexAttribute, PrimitiveType, BufferUsage } from "./vertex"
-import { Shader } from "./shader"
 import { Component } from "./entity"
 import { Model, MeshShader, Mesh } from "./mesh"
-import { DiffuseMaterial, DiffuseShader } from "./diffuse"
+
+/**
+ * Default material used when reading from assimp2json
+ */
+export class AssimpMaterial {
+  ambientColor = new Vector3(1, 1, 1)
+  specularMap: Texture2D
+  specularColor = new Vector3(1, 1, 1)
+  normalMap: Texture2D
+  heightMap: Texture2D
+  diffuseMap: Texture2D
+  diffuseColor = new Vector3(1, 1, 1)
+}
+
+export interface AssimpMaterialFactory<T> {
+  create(material: AssimpMaterial): T
+}
+
+class DefaultAssimpMaterialFactory implements AssimpMaterialFactory<AssimpMaterial> {
+  create(material: AssimpMaterial) {
+    return material
+  }
+}
 
 /**
  * Open Asset Import Library
@@ -38,21 +59,30 @@ export module Assimp {
   /**
    * Creates a model from a assimp2json file.
    */
-  export function createFromFile(filePath: string, shader: MeshShader<DiffuseMaterial>) {
+  export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, factory: AssimpMaterialFactory<T>) {
     let data = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    let reader = new AssimpReader(
-      filePath.replace(/[^\/]*$/, ''), data, shader);
-    let model = new Model(shader)
+    let reader = new AssimpReader<T>(
+      filePath.replace(/[^\/]*$/, ''), data, shader, factory);
+    let model = new Model<T>(shader)
     model.meshes = reader.readNodeHierarchy(data.rootnode, model.transform);
     return model
   }
+
+  export function createModelFromFile(filePath: string, shader: MeshShader<AssimpMaterial>) {
+    return createModelFromFileCustomMaterial(
+      filePath, shader, new DefaultAssimpMaterialFactory())
+  }
+
+  export const boxFilePath = __dirname + "/content/models/box.json"
+
+  export const sphereFilePath = __dirname + "/content/models/sphere.json"
 }
 
-class AssimpReader {
+class AssimpReader<T> {
   textures: { [filepath: string]: Texture2D } = {}
 
   constructor(private path: string, private data: any,
-    private shader: MeshShader<DiffuseMaterial>) { }
+    private shader: MeshShader<T>, private factory: AssimpMaterialFactory<T>) { }
 
   static readTransformation(transformation: number[]) {
     let matrix = new Matrix4()
@@ -62,11 +92,10 @@ class AssimpReader {
     return matrix.transpose(matrix)
   }
 
-  readNodeHierarchy(node: any, 
-      transform: Transform, transformation?: Matrix4): Mesh[] {
-    let meshes: Mesh[] = []
+  readNodeHierarchy(node: any, transform: Transform, transformation?: Matrix4): Mesh<T>[] {
+    let meshes: Mesh<T>[] = []
 
-    let nodeTransformation = 
+    let nodeTransformation =
       AssimpReader.readTransformation(node.transformation)
     if (transformation) {
       Matrix4.multiply(transformation, nodeTransformation, nodeTransformation)
@@ -93,9 +122,8 @@ class AssimpReader {
   }
 
   readMesh(data: any, transformation: Matrix4) {
-    let mesh = new Mesh(transformation)
-    mesh.material = this.readMaterial(
-      this.data.materials[data.materialindex])
+    let mesh = new Mesh<T>(transformation)
+    mesh.material = this.readMaterial(this.data.materials[data.materialindex])
 
     for (var i = 0; i < data.vertices.length; i += 3) {
       mesh.geometry.vertices.push(new Vector3(
@@ -107,20 +135,22 @@ class AssimpReader {
         data.normals[i], data.normals[i + 1], data.normals[i + 2]
       ))
     }
-    for (var i = 0; i < data.texturecoords[0].length; i += 2) {
-      mesh.geometry.texCoords.push(new Vector2(
-        data.texturecoords[0][i], 1 - data.texturecoords[0][i + 1]
-      ))
+    if (data.texturecoords) {
+      for (var i = 0; i < data.texturecoords[0].length; i += 2) {
+        mesh.geometry.texCoords.push(new Vector2(
+          data.texturecoords[0][i], 1 - data.texturecoords[0][i + 1]
+        ))
+      }
     }
     for (var i = 0; i < data.faces.length; i++) {
       mesh.geometry.triangles.push(...data.faces[i])
     }
-    mesh.vertexSpec = this.shader.createVertexSpec(mesh.geometry)
+    mesh.vertexSpec = mesh.geometry.createVertexSpec(this.shader.input)
     return mesh
   }
 
   readMaterial(data: any) {
-    let material = new DiffuseMaterial(this.shader)
+    let material = new AssimpMaterial()
     for (let i = 0; i < data.properties.length; i++) {
       let value = data.properties[i].value
       switch (data.properties[i].key) {
@@ -133,15 +163,44 @@ class AssimpReader {
               material.diffuseMap = this.textures[value]
               break;
             }
+            case 2: {
+              material.specularMap = this.textures[value]
+              break;
+            }
+            case 5: {
+              material.heightMap = this.textures[value]
+              break;
+            }
+            case 6: {
+              material.normalMap = this.textures[value]
+              break;
+            }
           }
           break;
         }
         case "$clr.diffuse": {
-          material.diffuse = new Vector3(value[0], value[1], value[2])
+          let color = new Vector3(value[0], value[1], value[2])
+          if (color.magnitude > 0) {
+            material.diffuseColor = color
+          }
+          break
+        }
+        case "$clr.ambient": {
+          let color = new Vector3(value[0], value[1], value[2])
+          if (color.magnitude > 0) {
+            material.ambientColor = color
+          }
+          break
+        }
+        case "$clr.specular": {
+          let color = new Vector3(value[0], value[1], value[2])
+          if (color.magnitude > 0) {
+            material.specularColor = color
+          }
           break
         }
       }
     }
-    return material
+    return this.factory.create(material)
   }
 }

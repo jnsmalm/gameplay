@@ -23,11 +23,24 @@ SOFTWARE.*/
 import * as gl from "gameplay/opengl"
 import * as fs from "fs"
 
+import { MeshShader, MeshGeometry, MeshShaderInput } from "./mesh"
+import { Color } from "./color"
+import { AssimpMaterial } from "./assimp"
+import { VertexSpecification, VertexAttribute, BufferUsage } from "./vertex"
+import { Texture2D } from "./texture"
+import { Vector3, Matrix4 } from "./math"
+
 export class Shader {
+  private static currentProgram: number
+  
   readonly program: number
   readonly uniform = new Proxy({}, {
     set: (target: any, p: string, value: any, receiver: any) => {
-      return this.setUniform(p, value)
+      let result: boolean
+      this.useTemporary(() => {
+        result = this.setUniform(p, value)
+      })
+      return result
     }
   })
 
@@ -53,7 +66,23 @@ export class Shader {
   }
 
   use() {
+    if (this.program === Shader.currentProgram) {
+      return
+    }
     gl.useProgram(this.program)
+    Shader.currentProgram = this.program
+  }
+
+  private useTemporary(usage: () => void) {
+    if (this.program === Shader.currentProgram) {
+      usage()
+    } else {
+      gl.useProgram(this.program)
+      usage()
+      if (Shader.currentProgram) {
+        gl.useProgram(Shader.currentProgram)
+      }
+    }
   }
 
   private setUniform(name: string, value: any) {
@@ -93,5 +122,58 @@ export class Shader {
       throw new TypeError(gl.getShaderInfoLog(shader))
     }
     return shader
+  }
+}
+
+export class BasicShader extends Shader implements MeshShader<AssimpMaterial> {
+  constructor() {
+    super(
+      fs.readFileSync(__dirname + "/content/shaders/basic.vert", "utf8"),
+      fs.readFileSync(__dirname + "/content/shaders/basic.frag", "utf8"))
+    this.setLightDiffuse(new Vector3(1, 1, 1))
+    this.setLightDirection(new Vector3(-1, -1, -1))
+    this.setLightAmbient(new Vector3(0.3, 0.3, 0.3))
+  }
+
+  get input() {
+    return [
+      MeshShaderInput.Position, 
+      MeshShaderInput.Normal,
+      MeshShaderInput.TextureCoordinate
+    ]
+  }
+
+  setLightAmbient(value: Vector3) {
+    this.uniform["light.ambient"] = value
+  }
+
+  setLightDiffuse(value: Vector3) {
+    this.uniform["light.diffuse"] = value
+  }
+
+  setLightDirection(value: Vector3) {
+    this.uniform["light.direction"] = value
+  }
+
+  setMaterial(material: AssimpMaterial) {
+    if (material.diffuseMap) {
+      this.uniform["material.enableDiffuseMap"] = 1
+      material.diffuseMap.use()
+    } else {
+      this.uniform["material.enableDiffuseMap"] = 0
+    }
+    this.uniform["material.diffuse"] = material.diffuseColor
+  }
+
+  setWorld(world: Matrix4) {
+    this.uniform["model"] = world
+  }
+
+  setProjection(projection: Matrix4) {
+    this.uniform["projection"] = projection
+  }
+
+  setView(view: Matrix4) {
+    this.uniform["view"] = view
   }
 }

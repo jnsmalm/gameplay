@@ -22,17 +22,6 @@ find_package(OpenGL REQUIRED)
 set(EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
 set(EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} ${OPENGL_LIBRARIES})
 
-# add command to create the header and source files
-add_custom_command(
-	OUTPUT
-		"${SOURCE_DIR}/gl3w.c"
-		"${HEADER_DIR}/GL/gl3w.h"
-		"${HEADER_DIR}/GL/glcorearb.h"
-	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/gl3w_gen.py
-	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/gl3w_gen.py
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 # add pseudo target that depends on the generated files
 add_custom_target(
 	gl3w_gen ALL

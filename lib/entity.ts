@@ -76,8 +76,7 @@ export class Entity implements UpdatableDrawable {
  * Represents an array that manages other objects by removing them when they
  * are destroyed.
  */
-export class Manager<T extends UpdatableDrawable> extends Array<T> {
-
+export class Manager<T extends UpdatableDrawable = UpdatableDrawable> extends Array<T> {
   /**
    * Draws the objects in the array.
    */
