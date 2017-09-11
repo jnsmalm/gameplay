@@ -175,7 +175,7 @@ function* addons() {
   }
   await download(platform.nodeurl, "node.tar.gz")
   await platform.extract("node.tar.gz", ".")
-  await copy(platform.nodeexe, `dist/bin/${path.basename(platform.nodeexe)}`)
+  await copy(platform.nodeexe, `dist/bin/gameplay${path.extname(platform.nodeexe)}`)
   await copyglob("{LICENSE,tsconfig.json}", "dist")
   await copy("lib", "dist/node_modules/gameplay/lib")
   await platform.archive("dist", 
