@@ -9,7 +9,7 @@ import * as unzip from "unzip"
 import * as cpx from "cpx"
 
 const nodever = "7.7.3"
-const gamever = "0.8.2"
+const gamever = "0.8.3"
 
 function download(url: string, filename: string) {
   console.log(`download ${url}...`)
@@ -75,7 +75,7 @@ class OpenAL extends Addon {
 interface Platform {
   nodeurl: string
   nodeexe: string
-  name: string
+  arch: string
   extract(filename: string, dest: string): Promise<void>
   archive(dir: string, filename: string): Promise<void>
 }
@@ -89,8 +89,8 @@ class Macos implements Platform {
     return `node-v${nodever}-darwin-x64/bin/node`
   }
 
-  get name() {
-    return "macos"
+  get arch() {
+    return "x64"
   }
 
   extract(filename: string, dest: string) {
@@ -115,15 +115,15 @@ class Macos implements Platform {
 
 class Win32 implements Platform {
   get nodeurl() {
-    return `https://nodejs.org/dist/v${nodever}/node-v${nodever}-win-x64.zip`
+    return `https://nodejs.org/dist/v${nodever}/node-v${nodever}-win-x86.zip`
   }
 
   get nodeexe() {
-    return `node-v${nodever}-win-x64/node.exe`
+    return `node-v${nodever}-win-x86/node.exe`
   }
 
-  get name() {
-    return "windows"
+  get arch() {
+    return "x86"
   }
 
   extract(filename: string, dest: string) {
@@ -175,8 +175,9 @@ function* addons() {
   }
   await download(platform.nodeurl, "node.tar.gz")
   await platform.extract("node.tar.gz", ".")
-  await copy(platform.nodeexe, `dist/bin/${path.basename(platform.nodeexe)}`)
+  await copyglob(platform.nodeexe, "dist/bin")
   await copyglob("{LICENSE,tsconfig.json}", "dist")
   await copy("lib", "dist/node_modules/gameplay/lib")
-  await platform.archive("dist", `/gameplay-v${gamever}-${platform.name}-x64`)
+  await platform.archive("dist", 
+    `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)
 })()
