@@ -7,7 +7,7 @@ instead it runs as a native application using Node.js.
 
 ## Building
 
-To build from source, Node.js need to be installed. Two modules, TypeScript and Cmake.js and needs to be installed globally as well.
+To build from source, Node.js need to be installed. Two modules, TypeScript and Cmake.js needs to be installed globally as well.
 
 ```
 $ npm install -g typescript
