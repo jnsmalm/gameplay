@@ -8,7 +8,7 @@ import * as path from "path"
 import * as unzip from "unzip"
 import * as cpx from "cpx"
 
-const nodever = "7.7.3"
+const nodever = "8.5.0"
 const gamever = "0.8.3"
 
 function download(url: string, filename: string) {
