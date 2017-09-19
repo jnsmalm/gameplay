@@ -50,7 +50,7 @@ export module Game {
 
     let {
       targetElapsedTime = 1 / 60,
-      clearColor = new Color(0.3, 0.3, 0.3, 1),
+      clearColor = new Color(0.9, 0.9, 0.9, 1),
       isFixedTimeStep = true,
       escapeKeyAsExit = true
     } = options
