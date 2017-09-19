@@ -177,6 +177,7 @@ function* addons() {
   await platform.extract("node.tar.gz", ".")
   await copyglob(platform.nodeexe, "dist/bin")
   await copyglob("{LICENSE,tsconfig.json}", "dist")
+  await copy("examples", "dist/examples")
   await copy("lib", "dist/node_modules/gameplay/lib")
   await platform.archive("dist", 
     `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)
