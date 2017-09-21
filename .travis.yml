@@ -2,10 +2,8 @@ os: osx
 osx_image: xcode7.3
 language: cpp
 compiler: clang
-node_js:
-- "8"
 install:
-- node -v
+- nvm install 8
 - npm install -g cmake-js
 - npm install -g typescript
 - npm install
