@@ -8,7 +8,6 @@ install:
 - node -v
 - npm install -g cmake-js
 - npm install -g typescript
-- npm install @types/node
 - npm install
 - set PATH=C:\Users\appveyor\AppData\Roaming\npm;%PATH%
 - tsc
