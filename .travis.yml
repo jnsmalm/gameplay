@@ -2,10 +2,11 @@ os: osx
 osx_image: xcode7.3
 language: cpp
 compiler: clang
+node_js:
+- "7"
 install:
 - npm install -g cmake-js
 - npm install -g typescript
-- npm install @types/node
 - npm install
 - tsc
 script:
