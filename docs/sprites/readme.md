@@ -1,4 +1,6 @@
-> Sprites are 2D graphic objects, which are drawn as textured quads. They are 
+# Sprites
+
+Sprites are 2D graphic objects, which are drawn as textured quads. They are 
 commonly used for representing 2D elements such as UI and text, but can also be 
 used for creating whole games (e.g. 2D platformers).
 
@@ -13,7 +15,7 @@ Initializing the game will set up what we need.
 $.Game.init()
 ```
 
-# Drawing a sprite
+## Drawing a sprite
 
 Sprites are drawn using `SpriteBatch`. As the name implies, the sprites are 
 batched by texture when drawn to improve performance. When created, the 
