@@ -61,8 +61,7 @@ function markdown(filepath: string) {
         docs += code(parsed.blocks[i], lang)
       }
     }
-    let file = path.basename(filepath, ".ts")
     let dir = path.dirname(filepath)
-    fs.writeFile(`${dir}/${file}.md`, docs, () => {})
+    fs.writeFile(`${dir}/readme.md`, docs, () => {})
   })
 }
