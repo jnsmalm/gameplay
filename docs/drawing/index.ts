@@ -1,4 +1,4 @@
-/*# Graphics*/
+/*# Drawing*/
 
 import * as $ from "gameplay/lib"
 

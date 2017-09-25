@@ -1,4 +1,4 @@
-# Graphics
+# Drawing
 
 ```javascript
 import * as $ from "gameplay/lib"
