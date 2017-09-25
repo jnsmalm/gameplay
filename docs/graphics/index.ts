@@ -108,7 +108,6 @@ Now everything has been set up to actually draw the triangle. We tell the
 $.Game.draw = () => {
   vertexSpec.draw($.PrimitiveType.Triangles, 3)
 }
-$.Game.run()
 
 /*## Uniforms
 

@@ -41,4 +41,3 @@ $.Game.draw = () => {
   sprite.draw()
   sbatch.draw()
 }
-$.Game.run()

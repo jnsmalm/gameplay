@@ -44,7 +44,9 @@ export module Game {
   export let keyboard: Keyboard
   export let mouse: Mouse
 
-  /** Creates a window, input devices and sets up the game loop. */
+  /** 
+   * Creates a window, input devices and starts running the game loop.
+   */
   export function init(options: GameOptions = {}) {
     this.init = () => {}
 
@@ -58,6 +60,8 @@ export module Game {
     window = new Window(options.window)
     mouse = new Mouse(window)
     keyboard = new Keyboard(window)
+
+    setImmediate(run)
 
     timeStep = isFixedTimeStep ?
       new FixedTimeStep(targetElapsedTime) : new TimeStep()
@@ -81,9 +85,7 @@ export module Game {
     DepthState.readWrite()
   }
 
-  /** Starts running the game loop. */
-  export function run() {
-    this.run = () => {}
+  function run() {
     window.update()
     if (window.isClosing) {
       return
