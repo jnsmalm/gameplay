@@ -1,4 +1,4 @@
-/*# Sprites
+/*# 2D Sprites
 
 Sprites are 2D graphic objects, which are drawn as textured quads. They are 
 commonly used for representing 2D elements such as UI and text, but can also be 

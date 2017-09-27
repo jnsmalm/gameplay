@@ -1,9 +1,13 @@
-# Game
+# Game loop
 
-The `Game` module handles the boilerplate code needed to get the game up and 
-running. It creates a window (needed for drawing graphics) and input devices.
-It also sets up the game loop which calls `update()` and `draw()` at specified 
-intervals.
+> A game loop runs continuously during gameplay. Each turn of the loop, it 
+processes user input without blocking, updates the game state, and renders the 
+game. It tracks the passage of time to control the rate of gameplay.
+
+The above quote is from gameprogrammingpatterns.com. The `Game` module handles 
+the boilerplate code needed to get the game up and running. It creates a window 
+(needed for drawing graphics) and input devices. It also sets up the game loop 
+which calls `update()` and `draw()` at specified intervals.
 
 ```javascript
 import * as $ from "gameplay/lib"
@@ -16,15 +20,9 @@ start running the game loop.
 $.Game.init()
 ```
 
-## Game loop
-
-> A game loop runs continuously during gameplay. Each turn of the loop, it 
-processes user input without blocking, updates the game state, and renders the 
-game. It tracks the passage of time to control the rate of gameplay.
-
-The above quote is from gameprogrammingpatterns.com. When using the `Game` 
-module, it controls when the game state is updated and rendered. When rendering 
-your game, set `draw()`.
+When drawing the objects in your game, set `draw()`. When `draw()` is called 
+the default render target has been cleared using the color set using `clearColor` 
+when initlaizing `Game`.
 
 ```javascript
 $.Game.draw = () => {
