@@ -17,8 +17,8 @@ start running the game loop.*/
 $.Game.init()
 
 /*When drawing the objects in your game, set `draw()`. When `draw()` is called 
-the default render target has been cleared using the color set using `clearColor` 
-when initlaizing `Game`.*/
+the default render target has been cleared using the color set by `clearColor` 
+when initializing `Game`.*/
 
 $.Game.draw = () => {
   // TODO: Add your drawing code here
