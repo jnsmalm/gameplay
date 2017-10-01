@@ -1,20 +1,50 @@
 #include "glfw/glfw3.h"
 #include "node.h"
+#include "node_object_wrap.h"
 #include "v8.h"
-#include  <string>
+#include <string>
 
 namespace gameplay {
 namespace glfw {
 
 using v8::Context;
+using v8::FunctionTemplate;
 using v8::FunctionCallbackInfo;
+using v8::Function;
 using v8::Local;
 using v8::Number;
 using v8::Object;
 using v8::Value;
+using v8::HandleScope;
+using v8::Handle;
 using v8::Isolate;
 using v8::String;
 using v8::Exception;
+using v8::Persistent;
+using node::ObjectWrap;
+
+class Window : public ObjectWrap {
+public:
+  Window(Isolate* isolate, GLFWwindow* window) {
+    isolate_ = isolate;
+    window_ = window;
+    Local<Context> context = isolate->GetCurrentContext();
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate);
+    tpl->SetClassName(String::NewFromUtf8(isolate, "GLFWwindow"));
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    this->Wrap(tpl->GetFunction()->
+        NewInstance(context, 0, nullptr).ToLocalChecked());
+  }
+
+  Isolate* isolate() { return isolate_; }
+  Persistent<Function>* charModsCallback() { return &charModsCallback_; }
+  GLFWwindow* window() { return window_; }
+
+private:
+  Isolate* isolate_;
+  Persistent<Function> charModsCallback_;
+  GLFWwindow* window_;
+};
 
 static void (CreateWindow)(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
@@ -55,38 +85,36 @@ static void (CreateWindow)(const FunctionCallbackInfo<Value>& args) {
     share = reinterpret_cast<GLFWwindow*>(args[4]->IntegerValue());
   }
 
-  GLFWwindow* window = glfwCreateWindow(
-    width, height, title.c_str(), monitor, share);
+  Window *window = new Window(isolate, 
+    glfwCreateWindow(width, height, title.c_str(), monitor, share));
+  glfwSetWindowUserPointer(window->window(), window);
 
-  Local<Value> handle = Number::New(isolate, (uint64_t)window);
-  args.GetReturnValue().Set(handle);
+  args.GetReturnValue().Set(window->handle());
 }
 
 static void DestroyWindow(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
-  if (!args[0]->IsNumber()) {
+  if (!args[0]->IsObject()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  uint64_t handle = args[0]->IntegerValue();
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
-  glfwDestroyWindow(window);
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
+  glfwDestroyWindow(window->window());
 }
 
 static void GetCursorPos(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
-  if (!args[0]->IsNumber()) {
+  if (!args[0]->IsObject()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  uint64_t handle = args[0]->IntegerValue();
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
   double x, y;
-  glfwGetCursorPos(window, &x, &y);
+  glfwGetCursorPos(window->window(), &x, &y);
 
   Local<Object> result = Object::New(isolate);
   result->Set(String::NewFromUtf8(isolate, "x"), Number::New(isolate, x));
@@ -98,15 +126,14 @@ static void GetCursorPos(const FunctionCallbackInfo<Value>& args) {
 static void GetFramebufferSize(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   
-  if (!args[0]->IsNumber()) {
+  if (!args[0]->IsObject()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  uint64_t handle = args[0]->IntegerValue();
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
   int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
+  glfwGetFramebufferSize(window->window(), &width, &height);
   
   Local<Object> result = Object::New(isolate);
   result->Set(String::NewFromUtf8(isolate, "width"), 
@@ -120,29 +147,29 @@ static void GetFramebufferSize(const FunctionCallbackInfo<Value>& args) {
 static void GetKey(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   
-  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
+  if (!args[0]->IsObject() || !args[1]->IsNumber()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(args[0]->IntegerValue());
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
   auto key = args[1]->Uint32Value();
 
-  args.GetReturnValue().Set(glfwGetKey(window, key));
+  args.GetReturnValue().Set(glfwGetKey(window->window(), key));
 }
 
 static void GetMouseButton(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   
-  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
+  if (!args[0]->IsObject() || !args[1]->IsNumber()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(args[0]->IntegerValue());
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
   int button = args[1]->IntegerValue();
 
-  args.GetReturnValue().Set(glfwGetMouseButton(window, button));
+  args.GetReturnValue().Set(glfwGetMouseButton(window->window(), button));
 }
 
 static void GetPrimaryMonitor(const FunctionCallbackInfo<Value>& args) {
@@ -193,41 +220,72 @@ static void Init(const FunctionCallbackInfo<Value>& args) {
 static void MakeContextCurrent(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   
-  if (!args[0]->IsNumber()) {
+  if (!args[0]->IsObject()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  uint64_t handle = args[0]->IntegerValue();
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
-  glfwMakeContextCurrent(window);
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
+  glfwMakeContextCurrent(window->window());
 }
 
 static void SetInputMode(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   
-  if (!args[0]->IsNumber() || !args[1]->IsNumber() || !args[2]->IsNumber()) {
+  if (!args[0]->IsObject() || !args[1]->IsNumber() || !args[2]->IsNumber()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(args[0]->IntegerValue());
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
   int mode = args[1]->IntegerValue();
   int value = args[2]->IntegerValue();
 
-  glfwSetInputMode(window, mode, value);
+  glfwSetInputMode(window->window(), mode, value);
+}
+
+static void SetCharModsCallback(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (!args[0]->IsObject() || !(args[1]->IsFunction() || args[1]->IsNull())) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
+
+  if (args[1]->IsNull()) {
+    glfwSetCharModsCallback(window->window(), nullptr);
+    return;
+  }
+  Handle<Function> callback = Handle<Function>::Cast(args[1]);
+  window->charModsCallback()->Reset(isolate, callback);
+
+  GLFWcharmodsfun charModsFunc = 
+      [](GLFWwindow* window, unsigned int codepoint, int mods) {
+    Window* wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    HandleScope scope(wnd->isolate());
+    
+    Local<Function> callback = 
+      Local<Function>::New(wnd->isolate(), *wnd->charModsCallback());
+    Local<Value> argv[2] = {
+      Number::New(wnd->isolate(), codepoint),
+      Number::New(wnd->isolate(), mods)
+    };
+    callback->Call(callback, 2, argv);
+  };
+  glfwSetCharModsCallback(window->window(), charModsFunc);
 }
 
 static void SetWindowShouldClose(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
-  if (!args[0]->IsNumber()) {
+  if (!args[0]->IsObject()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  uint64_t handle = args[0]->IntegerValue();
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
 
   if (!args[1]->IsNumber()) {
     isolate->ThrowException(Exception::TypeError(
@@ -236,20 +294,19 @@ static void SetWindowShouldClose(const FunctionCallbackInfo<Value>& args) {
   }
   int value = args[1]->IntegerValue();
 
-  glfwSetWindowShouldClose(window, value);
+  glfwSetWindowShouldClose(window->window(), value);
 }
 
 static void SwapBuffers(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   
-  if (!args[0]->IsNumber()) {
+  if (!args[0]->IsObject()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  uint64_t handle = args[0]->IntegerValue();
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
-  glfwSwapBuffers(window);
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
+  glfwSwapBuffers(window->window());
 }
 
 static void PollEvents(const FunctionCallbackInfo<Value>& args) {
@@ -274,14 +331,13 @@ static void WindowHint(const FunctionCallbackInfo<Value>& args) {
 static void WindowShouldClose(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   
-  if (!args[0]->IsNumber()) {
+  if (!args[0]->IsObject()) {
     isolate->ThrowException(Exception::TypeError(
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-  uint64_t handle = args[0]->IntegerValue();
-  GLFWwindow* window = reinterpret_cast<GLFWwindow*>(handle);
-  args.GetReturnValue().Set(glfwWindowShouldClose(window));
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
+  args.GetReturnValue().Set(glfwWindowShouldClose(window->window()));
 }
 
 void Initialize(
@@ -299,6 +355,7 @@ void Initialize(
   NODE_SET_METHOD(target, "makeContextCurrent", MakeContextCurrent);
   NODE_SET_METHOD(target, "pollEvents", PollEvents);
   NODE_SET_METHOD(target, "setInputMode", SetInputMode);
+  NODE_SET_METHOD(target, "setCharModsCallback", SetCharModsCallback);
   NODE_SET_METHOD(target, "setWindowShouldClose", SetWindowShouldClose);
   NODE_SET_METHOD(target, "swapBuffers", SwapBuffers);
   NODE_SET_METHOD(target, "terminate", Terminate);

@@ -7,32 +7,35 @@ declare module "gameplay/glfw" {
     width: number
     height: number
   }
+  class GLFWwindow {}
   
   function createWindow(width: number, height: number,
-    title: string, monitor?: number, share?: number): number
-  function destroyWindow(window: number): void
-  function getCursorPos(window: number): {
+    title: string, monitor?: number, share?: number): GLFWwindow
+  function destroyWindow(window: GLFWwindow): void
+  function getCursorPos(window: GLFWwindow): {
     x: number
     y: number
   }
-  function getFramebufferSize(window: number): {
+  function getFramebufferSize(window: GLFWwindow): {
     width: number
     height: number
   }
-  function getMouseButton(window: number, button: number): number
-  function getKey(window: number, key: number): number
+  function getMouseButton(window: GLFWwindow, button: number): number
+  function getKey(window: GLFWwindow, key: number): number
   function getPrimaryMonitor(): number
   function getTime(): number
   function getVideoMode(monitor: number): VideoMode
   function init(): void
-  function makeContextCurrent(window: number): void
-  function setInputMode(window: number, mode: number, value: number): void
-  function setWindowShouldClose(window: number, value: number): void
-  function swapBuffers(window: number): void
+  function makeContextCurrent(window: GLFWwindow): void
+  function setInputMode(window: GLFWwindow, mode: number, value: number): void
+  function setCharModsCallback(window: GLFWwindow, 
+    callback: (codepoint: number, mods: number) => void): void
+  function setWindowShouldClose(window: GLFWwindow, value: number): void
+  function swapBuffers(window: GLFWwindow): void
   function pollEvents(): void
   function terminate(): void
   function windowHint(hint: number, value: number): void
-  function windowShouldClose(window: number): boolean
+  function windowShouldClose(window: GLFWwindow): boolean
 
   const FOCUSED: number
   const ICONIFIED: number

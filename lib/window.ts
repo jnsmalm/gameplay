@@ -33,7 +33,7 @@ export interface WindowOptions {
 export class Window {
   readonly height: number
   readonly width: number
-  readonly handle: number
+  readonly handle: glfw.GLFWwindow
   /**
    * Creates a new window and sets OpenGL context.
    */
