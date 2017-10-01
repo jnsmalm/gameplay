@@ -30,6 +30,8 @@ declare module "gameplay/glfw" {
   function setInputMode(window: GLFWwindow, mode: number, value: number): void
   function setCharModsCallback(window: GLFWwindow, 
     callback: (codepoint: number, mods: number) => void): void
+  function setKeyCallback(window: GLFWwindow, 
+    callback: (key: number, scancode: number, action: number, mods: number) => void): void
   function setWindowShouldClose(window: GLFWwindow, value: number): void
   function swapBuffers(window: GLFWwindow): void
   function pollEvents(): void

@@ -38,11 +38,13 @@ public:
 
   Isolate* isolate() { return isolate_; }
   Persistent<Function>* charModsCallback() { return &charModsCallback_; }
+  Persistent<Function>* keyCallback() { return &keyCallback_; }
   GLFWwindow* window() { return window_; }
 
 private:
   Isolate* isolate_;
   Persistent<Function> charModsCallback_;
+  Persistent<Function> keyCallback_;
   GLFWwindow* window_;
 };
 
@@ -277,6 +279,41 @@ static void SetCharModsCallback(const FunctionCallbackInfo<Value>& args) {
   glfwSetCharModsCallback(window->window(), charModsFunc);
 }
 
+static void SetKeyCallback(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (!args[0]->IsObject() || !(args[1]->IsFunction() || args[1]->IsNull())) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
+
+  if (args[1]->IsNull()) {
+    glfwSetKeyCallback(window->window(), nullptr);
+    return;
+  }
+  Handle<Function> callback = Handle<Function>::Cast(args[1]);
+  window->keyCallback()->Reset(isolate, callback);
+
+  GLFWkeyfun keyFunc = 
+      [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+    Window* wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    HandleScope scope(wnd->isolate());
+    
+    Local<Function> callback = 
+      Local<Function>::New(wnd->isolate(), *wnd->keyCallback());
+    Local<Value> argv[4] = {
+      Number::New(wnd->isolate(), key),
+      Number::New(wnd->isolate(), scancode),
+      Number::New(wnd->isolate(), action),
+      Number::New(wnd->isolate(), mods)
+    };
+    callback->Call(callback, 4, argv);
+  };
+  glfwSetKeyCallback(window->window(), keyFunc);
+}
+
 static void SetWindowShouldClose(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
@@ -356,6 +393,7 @@ void Initialize(
   NODE_SET_METHOD(target, "pollEvents", PollEvents);
   NODE_SET_METHOD(target, "setInputMode", SetInputMode);
   NODE_SET_METHOD(target, "setCharModsCallback", SetCharModsCallback);
+  NODE_SET_METHOD(target, "setKeyCallback", SetKeyCallback);
   NODE_SET_METHOD(target, "setWindowShouldClose", SetWindowShouldClose);
   NODE_SET_METHOD(target, "swapBuffers", SwapBuffers);
   NODE_SET_METHOD(target, "terminate", Terminate);
