@@ -2,7 +2,7 @@ import * as glob from "glob"
 import * as fs from "fs"
 import * as path from "path"
 
-glob("docs/**/*.ts", (err, files) => {
+glob("tutorials/**/*.ts", (err, files) => {
   for (let file of files) {
     markdown(`${__dirname}/${file}`)
   }

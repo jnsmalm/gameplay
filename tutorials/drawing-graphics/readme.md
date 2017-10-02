@@ -137,10 +137,10 @@ triangle by checking for keyboard input and changing the uniform variable.
 ```javascript
 let opacity = 1
 $.Game.update = () => {
-  if ($.Game.keyboard.isKeyDown($.KeyCode.Up)) {
+  if ($.Game.window.input.keys[$.KeyCode.Up]) {
     opacity = Math.min(1, opacity + 0.025)
   }
-  if ($.Game.keyboard.isKeyDown($.KeyCode.Down)) {
+  if ($.Game.window.input.keys[$.KeyCode.Down]) {
     opacity = Math.max(0, opacity - 0.025)
   }
   shader.uniform["opacity"] = opacity

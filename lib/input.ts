@@ -143,35 +143,3 @@ export class Mouse {
     glfw.setInputMode(this.window.handle, glfw.CURSOR, mode)
   }
 }
-
-export class Keyboard {
-  private state = { new: {}, old: {} }
-
-  constructor(readonly window: Window) {
-    glfw.setInputMode(window.handle, glfw.STICKY_KEYS, glfw.TRUE)
-  }
-
-  /**
-   * Updates the state of the keyboard.
-   */
-  update() {
-    this.state.old = this.state.new
-    this.state.new = {}
-  }
-
-  /**
-   * Returns a value indicating if the key was pressed this frame.
-   */
-  isKeyPress(key: KeyCode) {
-    this.state.new[key] = glfw.getKey(this.window.handle, key)
-    return this.state.old[key] !== glfw.PRESS &&
-      this.state.new[key] === glfw.PRESS
-  }
-
-  /**
-   * Returns a value indicating if the key state is down.
-   */
-  isKeyDown(key: KeyCode) {
-    return glfw.getKey(this.window.handle, key) === glfw.PRESS
-  }
-}
