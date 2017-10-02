@@ -24,7 +24,7 @@ import * as glfw from "gameplay/glfw"
 import * as gl from "gameplay/opengl"
 
 import { Window, WindowOptions } from "./window"
-import { Mouse, KeyCode  } from "./input"
+import { KeyCode } from "./input"
 import { Color } from "./color"
 import { BlendState, DepthState, RasterizerState } from "./renderstate"
 
@@ -41,7 +41,6 @@ let lastTime = 0
 
 export module Game {
   export let window: Window
-  export let mouse: Mouse
 
   /** 
    * Creates a window, input devices and starts running the game loop.
@@ -57,7 +56,6 @@ export module Game {
     } = options
 
     window = new Window(options.window)
-    mouse = new Mouse(window)
 
     setImmediate(run)
 
@@ -69,7 +67,6 @@ export module Game {
       window.swapBuffers()
     }
     timeStep.update = (elapsedTime: number) => {
-      mouse.update()
       window.update()
       if (escapeKeyAsExit && window.input.keys[KeyCode.Escape]) {
         exit()

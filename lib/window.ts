@@ -34,6 +34,10 @@ class WindowInput {
   keys: {
     [key: number]: InputState
   } = {}
+  mouseButtons: {
+    [button: number]: InputState
+  } = {}
+  cursor = { x: 0, y: 0 }
   text = ""
 }
 
@@ -103,8 +107,19 @@ export class Window {
         this._input.next.keys[key] = action
       }
     })
+
     glfw.setCharModsCallback(this.handle, (codepoint, mods) => {
       this._input.next.text += String.fromCodePoint(codepoint)
+    })
+
+    glfw.setMouseButtonCallback(this.handle, (button, action, mods) => {
+      if (action === 0) {
+        if (!this._input.next.mouseButtons[button]) {
+          this._input.next.mouseButtons[button] = action
+        }
+      } else {
+        this._input.next.mouseButtons[button] = action
+      }
     })
   }
 
@@ -131,6 +146,8 @@ export class Window {
   /** Updates input state. */
   update() {
     this._input.curr.text = this._input.next.text
+    this._input.curr.cursor = glfw.getCursorPos(this.handle)
+
     for (let key in this._input.curr.keys) {
       if (this._input.curr.keys[key] === InputState.Released) {
         delete this._input.curr.keys[key]
@@ -146,6 +163,23 @@ export class Window {
     for (let key in this._input.next.keys) {
       this._input.curr.keys[key] = this._input.next.keys[key]
     }
+
+    for (let button in this._input.curr.mouseButtons) {
+      if (this._input.curr.mouseButtons[button] === InputState.Released) {
+        delete this._input.curr.mouseButtons[button]
+        continue
+      }
+      let isPressed = glfw.getMouseButton(this.handle, parseInt(button))
+      if (this._input.curr.mouseButtons[button] && isPressed) {
+        this._input.curr.mouseButtons[button] = InputState.Squeezed
+      } else {
+        this._input.curr.mouseButtons[button] = InputState.Released
+      }
+    }
+    for (let button in this._input.next.mouseButtons) {
+      this._input.curr.mouseButtons[button] = this._input.next.mouseButtons[button]
+    }
+
     this._input.next = new WindowInput()
   }
 
@@ -162,5 +196,9 @@ export class Window {
   /** Closes the window. */
   close() {
     glfw.setWindowShouldClose(this.handle, 1)
+  }
+
+  setCursorMode(mode: number) {
+    glfw.setInputMode(this.handle, glfw.CURSOR, mode)
   }
 }
