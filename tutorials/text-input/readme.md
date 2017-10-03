@@ -67,11 +67,11 @@ The keys and mouse buttons can have 3 different states:
 Keys can also have an additional state, `Repeated`.
 
 The first frame a key or button is pressed (after being released) it's state is 
-`Pressed`. If the key or button is still being held down the state is `Squeezed`. 
-If the key is held for a longer period the state will periodically be set to 
-`Repeated` (this is when the operating system notifies that the key is still 
-being held). When the key or button is finally released, it's state becomes 
-`Released`.
+`Pressed`. The next frame, if the key or button is still being held down the 
+state is `Squeezed`. If the key is held for a longer period the state will 
+periodically be set to `Repeated` (this is when the operating system notifies 
+that the key is still being held). When the key or button is finally released, 
+it's state becomes `Released`.
 
 In the function below we check if the backspace key is being used.
 
