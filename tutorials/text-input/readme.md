@@ -97,5 +97,5 @@ $.Game.update = () => {
   if (backspace()) {
     header.text = header.text.substring(0, header.text.length - 1)
   }
-```
 }
+```
