@@ -53,11 +53,14 @@ class Addon {
   constructor(protected name: string) {
   }
   async build() {
-    await execute("cmake-js", ["rebuild", "-d", this.name, "-v", nodever])
-    await copy(`${this.name}/build/release/gameplay-${this.name}.node`,
+    await execute(
+      "cmake-js", ["rebuild", "-d", `addons/${this.name}`, "-v", nodever])
+    await copy(
+      `addons/${this.name}/build/release/gameplay-${this.name}.node`,
       `dist/node_modules/gameplay/${this.name}/${this.name}.node`)
     await copyglob(
-      `${this.name}/index*.*`, `dist/node_modules/gameplay/${this.name}`)
+      `addons/${this.name}/index*.*`, 
+      `dist/node_modules/gameplay/${this.name}`)
   }
 }
 
@@ -67,7 +70,8 @@ class OpenAL extends Addon {
   }
   async build() {
     await super.build()
-    await copyglob(`${this.name}/build/release/{libopenal.dylib,OpenAL32.dll}`, 
+    await copyglob(
+      `addons/${this.name}/build/release/{libopenal.dylib,OpenAL32.dll}`, 
       `dist/node_modules/gameplay/${this.name}`)
   }
 }
