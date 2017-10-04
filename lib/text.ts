@@ -188,7 +188,10 @@ export class Text implements Component {
         width += this.wordSpacingWidth
         continue
       }
-      width += this.font.glyphs[this._text[i]].advance
+      let glyph = this.font.glyphs[this._text[i]]
+      if (glyph) {
+        width += glyph.advance
+      }
     }
     return width
   }
@@ -226,9 +229,12 @@ export class Text implements Component {
         position.x += this.wordSpacingWidth
         continue
       }
+      let glyph = this.font.glyphs[this._text[i]]
+      if (!glyph) {
+        continue
+      }
       let kerning = i < this._text.length - 1 ?
         this.font.getKerning(this._text[i], this._text[i + 1]) : 0
-      let glyph = this.font.glyphs[this._text[i]]
 
       this.setupSpriteAsGlyph(this.sprites[i], glyph,
         new Vector2(position.x + glyph.offset.x, position.y))

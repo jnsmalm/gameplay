@@ -27,21 +27,22 @@ character/glyph can be found. The `Sprite` representing that character uses that
 information for setting it's texture `source`.
 
 Creating the `FontTexture` requires a font file and the height (in pixels) 
-for the font. The constructor also requires a string `characters` containing 
-the characters you wish to draw with that font. `Text.alphaNumeric` contains 
-the alpha numeric characters A-Z, a-z and 0-9. If you wish to be able to draw 
-other characters, simply append them to the string.
+for the font. The constructor also requires a string `chars` containing the 
+characters you wish to draw with that font. `Text.alphaNumeric` contains the 
+alpha numeric characters A-Z, a-z and 0-9. If you wish to be able to draw other 
+characters, simply append them to the string.
 
 ```javascript
+let chars = $.Text.alphaNumeric + ",."
 let roboto = new $.FontTexture(
-  __dirname + "/roboto/roboto-thin.ttf", 70, $.Text.alphaNumeric + ",.")
+  __dirname + "/roboto/roboto-thin.ttf", 70, chars)
 ```
 
 Create the `Text` object, which is used for setting up and placing the 
 character sprites.
 
 ```javascript
-let header = new $.Text(roboto, sbatch, "Hello, type some text here")
+let header = new $.Text(roboto, sbatch, "Hello, type some text here.")
 ```
 
 Drawing the `Text` object will also draw all of it's character sprites. 
@@ -87,13 +88,17 @@ function backspace() {
 }
 ```
 
-Every frame we update, we append the input text to the text we are drawing. 
-And if the backspace key is being used, we remove the last character of the 
-text string.
+Every frame we update, we append the input text to the text we are drawing 
+(if the character is available in the `FontTexture`). And if the backspace key 
+is being used, we remove the last character of the text string.
 
 ```javascript
 $.Game.update = () => {
-  header.text += $.Game.window.input.text
+  for (let c of $.Game.window.input.text) {
+    if (chars.includes(c)) {
+      header.text += c
+    }
+  }
   if (backspace()) {
     header.text = header.text.substring(0, header.text.length - 1)
   }
