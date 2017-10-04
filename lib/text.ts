@@ -28,6 +28,7 @@ import { Texture2D, TextureDataType, TextureFormat } from "./texture"
 import { Sprite, SpriteBatch, Rectangle } from "./sprite"
 import { Component } from "./entity"
 import { Transform } from "./transform"
+import { Color } from "./color"
 
 class FontGlyph {
   constructor(readonly advance: number, readonly source: Rectangle,
@@ -119,10 +120,15 @@ export enum TextHorizontalAlign {
 export class Text implements Component {
   private _wordSpacing = 1
   private _horizontalAlign = TextHorizontalAlign.Center
-
+  
   sprites: Sprite[] = []
   transform = new Transform()
   pixelsPerUnit = 100
+
+  /**
+   * The color of the text.
+   */
+  color = new Color(0.1, 0.1, 0.1, 1) 
 
   constructor(public font: FontTexture, public spriteBatch: SpriteBatch, private _text: string = "") {
     this.setupSprites()
@@ -232,6 +238,7 @@ export class Text implements Component {
 
   private setupSpriteAsGlyph(sprite: Sprite, glyph: FontGlyph, position: Vector2) {
     sprite.pixelsPerUnit = this.pixelsPerUnit
+    sprite.color = this.color
     sprite.source = glyph.source
     sprite.transform.localPosition.x = position.x / this.pixelsPerUnit
     sprite.transform.localPosition.y =
