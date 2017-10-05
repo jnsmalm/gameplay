@@ -95,7 +95,7 @@ is being used, we remove the last character of the text string.
 ```javascript
 $.Game.update = () => {
   for (let c of $.Game.window.input.text) {
-    if (chars.includes(c)) {
+    if (chars.includes(c) || c === " ") {
       header.text += c
     }
   }
