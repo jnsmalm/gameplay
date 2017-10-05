@@ -13,7 +13,8 @@ $.Game.init()
 
 let camera = $.Camera.createDefault($.Game.window)
 let shader = new $.BasicShader()
-let cube3d = $.Assimp.createModelFromFile(__dirname + "/content/cube3d.json", shader)
+let cube3d = $.Assimp.createModelFromFile(
+  "tutorials/getting-started/content/cube3d.json", shader)
 
 $.Game.draw = () => {
   shader.setView(camera.getView())
