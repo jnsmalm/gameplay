@@ -72,10 +72,6 @@ export module Assimp {
     return createModelFromFileCustomMaterial(
       filePath, shader, new DefaultAssimpMaterialFactory())
   }
-
-  export const boxFilePath = __dirname + "/content/models/box.json"
-
-  export const sphereFilePath = __dirname + "/content/models/sphere.json"
 }
 
 class AssimpReader<T> {
