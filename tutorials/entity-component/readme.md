@@ -38,8 +38,9 @@ class Spinner implements $.Component {
   transform: $.Transform
 
   update(elapsedTime: number) {
+    let mouseButtons = $.Game.window.input.mouseButtons
     this.elapsed = Math.min(1, this.elapsed + 0.02)
-    if ($.Game.window.input.mouseButtons[$.MouseButton.Left]) {
+    if (mouseButtons[$.MouseButton.Left] === $.InputState.Pressed) {
       this.elapsed = 0
     }
     this.transform.localRotation = this.rotation()
