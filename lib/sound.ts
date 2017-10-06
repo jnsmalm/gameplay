@@ -81,6 +81,17 @@ export class SoundSource {
   }
 
   /**
+   * Gets or sets the gain.
+   */
+  get gain() {
+    return openal.getSourcef(this.source, openal.GAIN)
+  }
+
+  set gain(gain: number) {
+    openal.sourcef(this.source, openal.GAIN, gain)
+  }
+
+  /**
    * Pauses the playing sound.
    */
   pause() {
@@ -106,5 +117,16 @@ export class SoundSource {
    */
   stop() {
     openal.sourceStop(this.source)
+  }
+
+  /**
+   * Gets or sets the pitch.
+   */
+  get pitch() {
+    return openal.getSourcef(this.source, openal.PITCH)
+  }
+
+  set pitch(pitch: number) {
+    openal.sourcef(this.source, openal.PITCH, pitch)
   }
 }

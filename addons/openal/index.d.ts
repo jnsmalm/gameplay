@@ -7,6 +7,7 @@ declare module "gameplay/openal" {
   function createSource(): number
   function destroyContext(context: number): void
   function getError(): number
+  function getSourcef(source: number, param: number): number
   function getSourcei(source: number, param: number): number
   function makeContextCurrent(context: number): void
   function openDevice(): number
