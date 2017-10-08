@@ -44,10 +44,8 @@ let buffer = $.Vorbis.createSoundBuffer(
   __dirname + "/eric-skiff/come-and-find-me.ogg")
 ```
 
-### Use FFmpeg to convert to ogg vorbis
-
-If the sound file you want to load is not in the vorbis format, you can use the 
-[FFmpeg](https://www.ffmpeg.org) tool to convert it. For example, use the 
+If the sound file you want to load is not in the vorbis format, you can use 
+the [FFmpeg](https://www.ffmpeg.org) tool to convert it. For example, use the 
 following command to convert a wav file *input.wav* to a ogg vorbis file 
 *output.ogg*:
 
