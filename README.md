@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/jnsmalm/gameplay.svg?branch=develop)](https://travis-ci.org/jnsmalm/gameplay)
 [![Build status](https://ci.appveyor.com/api/projects/status/evxuhc1m502glsbw/branch/develop?svg=true)](https://ci.appveyor.com/project/jnsmalm/gameplay-mxc0a/branch/develop)
 
-Gameplay.js is a framework for creating native desktop games with JavaScript. 
+Gameplay.js is a library for creating native desktop games with JavaScript. 
 It includes bindings to low level APIs for drawing graphics, playing sounds and 
 handling input. Gameplay.js doesn't use HTML5 or run inside a web browser, 
 instead it runs as a native application using Node.js.
