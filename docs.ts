@@ -2,7 +2,7 @@ import * as glob from "glob"
 import * as fs from "fs"
 import * as path from "path"
 
-glob("tutorials/**/*.{js,ts}", (err, files: string[]) => {
+glob("docs/**/*.ts", (err, files: string[]) => {
   for (let file of files) {
     if (file.endsWith(".js")) {
       let ts = `${path.dirname(file)}/${path.basename(file, ".js")}.ts`

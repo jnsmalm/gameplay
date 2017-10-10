@@ -206,7 +206,7 @@ function* addons() {
   await copyglob(`${platform.nodeexe}`, "dist")
   await copy(`${platform.nodedir}/license`, "dist/_licenses/nodejs")
   await copy("license", "dist/_licenses/gameplayjs")
-  await copy("tutorials", "dist/tutorials")
+  await copy("docs", "dist/docs")
   await copy("lib", "dist/node_modules/gameplay/lib")
   await platform.archive("dist", 
     `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)
