@@ -95,7 +95,9 @@ interface Platform {
   nodeurl: string
   nodedir: string
   nodeexe: string
+  gameplay_script: string
   arch: string
+  copy_gameplay_script(destdir: string): void
   extract(filename: string, dest: string): Promise<void>
   archive(dir: string, filename: string): Promise<void>
 }
@@ -115,6 +117,15 @@ class Macos implements Platform {
 
   get arch() {
     return "x64"
+  }
+
+  get gameplay_script() {
+    return "gameplay.sh"
+  }
+
+  async copy_gameplay_script(destdir: string) {
+    await copy("gameplay.sh", destdir + "/gameplay")
+    await execute("chmod", ["+x", "dist/gameplay"])
   }
 
   extract(filename: string, dest: string) {
@@ -152,6 +163,14 @@ class Win32 implements Platform {
 
   get arch() {
     return "x86"
+  }
+
+  get gameplay_script() {
+    return "gameplay.cmd"
+  }
+
+  async copy_gameplay_script(destdir: string) {
+    await copy("gameplay.cmd", destdir + "/gameplay.cmd")
   }
 
   extract(filename: string, dest: string) {
@@ -203,10 +222,12 @@ function* addons() {
   }
   await download(platform.nodeurl, "node.tar.gz")
   await platform.extract("node.tar.gz", ".")
+  await platform.copy_gameplay_script("dist")
   await copyglob(`${platform.nodeexe}`, "dist")
   await copy(`${platform.nodedir}/license`, "dist/_licenses/nodejs")
   await copy("license", "dist/_licenses/gameplayjs")
   await copyglob("docs/**/*.{ts,js}", "dist/docs")
+  await copy("docs/content", "dist/docs/content")
   await copy("lib", "dist/node_modules/gameplay/lib")
   await platform.archive("dist", 
     `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)
