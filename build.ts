@@ -73,11 +73,27 @@ class OpenAL extends Addon {
     await copyglob(
       `addons/${this.name}/build/release/{libopenal.dylib,OpenAL32.dll}`, 
       `dist/node_modules/gameplay/${this.name}`)
+    await copy(
+      `addons/${this.name}/openal-soft-1.18.1/copying`, 
+      `dist/_licenses/openal-soft`)
+  }
+}
+
+class GLFW extends Addon {
+  constructor() {
+    super("glfw")
+  }
+  async build() {
+    await super.build()
+    await copy(
+      `addons/${this.name}/glfw-3.2.1/copying.txt`, 
+      `dist/_licenses/glfw`)
   }
 }
 
 interface Platform {
   nodeurl: string
+  nodedir: string
   nodeexe: string
   arch: string
   extract(filename: string, dest: string): Promise<void>
@@ -89,8 +105,12 @@ class Macos implements Platform {
     return `https://nodejs.org/dist/v${nodever}/node-v${nodever}-darwin-x64.tar.gz`
   }
 
+  get nodedir() {
+    return `node-v${nodever}-darwin-x64`
+  }
+
   get nodeexe() {
-    return `node-v${nodever}-darwin-x64/bin/node`
+    return `${this.nodedir}/bin/node`
   }
 
   get arch() {
@@ -122,8 +142,12 @@ class Win32 implements Platform {
     return `https://nodejs.org/dist/v${nodever}/node-v${nodever}-win-x86.zip`
   }
 
+  get nodedir() {
+    return `node-v${nodever}-win-x86`
+  }
+
   get nodeexe() {
-    return `node-v${nodever}-win-x86/node.exe`
+    return `${this.nodedir}/node.exe`
   }
 
   get arch() {
@@ -167,7 +191,7 @@ switch (os.platform()) {
 function* addons() {
   yield new OpenAL()
   yield new Addon("opengl")
-  yield new Addon("glfw")
+  yield new GLFW()
   yield new Addon("truetype")
   yield new Addon("image")
   yield new Addon("vorbis")
@@ -179,8 +203,9 @@ function* addons() {
   }
   await download(platform.nodeurl, "node.tar.gz")
   await platform.extract("node.tar.gz", ".")
-  await copyglob(platform.nodeexe, "dist/bin")
-  await copyglob("LICENSE", "dist")
+  await copyglob(`${platform.nodeexe}`, "dist")
+  await copy(`${platform.nodedir}/license`, "dist/_licenses/nodejs")
+  await copy("license", "dist/_licenses/gameplayjs")
   await copy("tutorials", "dist/tutorials")
   await copy("lib", "dist/node_modules/gameplay/lib")
   await platform.archive("dist", 
