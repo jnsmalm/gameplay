@@ -4,12 +4,6 @@ import * as path from "path"
 
 glob("docs/**/*.ts", (err, files: string[]) => {
   for (let file of files) {
-    if (file.endsWith(".js")) {
-      let ts = `${path.dirname(file)}/${path.basename(file, ".js")}.ts`
-      if (files.includes(ts)) {
-        continue
-      }
-    }
     markdown(`${__dirname}/${file}`)
   }
 })
@@ -68,6 +62,8 @@ function markdown(filepath: string) {
       }
     }
     let dir = path.dirname(filepath)
-    fs.writeFile(`${dir}/readme.md`, docs, () => {})
+    
+    fs.writeFile(`${dir}/${path.basename(
+      filepath, path.extname(filepath))}.md`, docs, () => {})
   })
 }

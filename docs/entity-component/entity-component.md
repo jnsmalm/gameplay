@@ -78,7 +78,7 @@ let camera = $.Camera.createDefault($.Game.window)
 let sbatch = new $.SpriteBatch(camera)
 
 entity.addComponent(new $.Sprite(sbatch,
-  $.Texture2D.createFromFile(__dirname + "/../content/gameplayjs.png")))
+  $.Texture2D.createFromFile(__dirname + "/../_content/gameplayjs.png")))
 ```
 
 Set `update()` and `draw()` for our game so that the entity gets updated and 

@@ -32,7 +32,7 @@ be drawn. The sprite is represented by an image, therefore it requires a
 
 ```javascript
 let sprite = new $.Sprite(sbatch, 
-  $.Texture2D.createFromFile(__dirname + "/../content/gameplayjs.png"))
+  $.Texture2D.createFromFile(__dirname + "/../_content/gameplayjs.png"))
 ```
 
 If you are drawing many sprites with the same image, it's recommended that you 

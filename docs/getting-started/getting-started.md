@@ -13,8 +13,7 @@ $.Game.init()
 
 let camera = $.Camera.createDefault($.Game.window)
 let shader = new $.BasicShader()
-let cube3d = $.Assimp.createModelFromFile(
-  "docs/getting-started/content/cube3d.json", shader)
+let cube3d = $.Assimp.createModelFromFile("docs/_content/cube3d.json", shader)
 
 $.Game.draw = () => {
   shader.setView(camera.getView())
@@ -28,11 +27,11 @@ $.Game.update = () => {
 }
 ```
 
-Run the script with the bundled Node.js runtime (located in the *bin* folder). 
+Run the code with the gameplay script (which used the bundled Node.js runtime. 
 If everything has gone well you should see a spinning 3D cube.
 
 ```
-% bin/node cube3d.js
+% ./gameplay cube3d.js
 ```
 
 ## TypeScript
