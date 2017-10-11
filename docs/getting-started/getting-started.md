@@ -53,12 +53,14 @@ To run the above example in Typescript you need to download the
 It's also recommended that you download 
 [Visual Studio Code](https://code.visualstudio.com). Then follow these steps:
 
-1. Start Visual Studio Code and open the Gameplay.js folder
+1. Start your favorite code editor (which supports TypeScript) and open the 
+Gameplay.js folder
 2. Create a new file *cube3d.ts* with the same contents as *cube3d.js*
 3. Change the line `const $ = require("gameplay/lib")`to `import * as $ from 
 "gameplay/lib"`
 4. You will now get all the benefits (like intellisense) from using TypeScript
-5. Open the terminal and type `tsc` (to compile) or `tsc -w` (to compile and 
-continuously check for file changes)
-6. TypeScript compiler should now have compiled *cube3d.ts* to *cube3d.js*
-7. Run the script with the gameplay script `% ./gameplay cube3d.js`
+5. Open the terminal and type `tsc --init` to generate a file *tsconfig.json*
+6. Enter `tsc` (to compile) or `tsc -w` (to compile and continuously check for 
+  file changes)
+7. TypeScript compiler should now have compiled *cube3d.ts* to *cube3d.js*
+8. Run the script with the gameplay script `% ./gameplay cube3d.js`
