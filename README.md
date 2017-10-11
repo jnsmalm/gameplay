@@ -39,9 +39,10 @@ script to run the *2d-sprites* application:
 % ./gameplay docs/2d-sprites/2d-sprites.js
 ```
 
-## Building
+## Building from source
 
-To build from source, Node.js need to be installed. Two modules, TypeScript and Cmake.js needs to be installed globally as well.
+To build Gameplay.js from source, Node.js need to be installed. Two modules, 
+TypeScript and Cmake.js needs to be installed globally as well.
 
 ```
 $ npm install -g typescript
@@ -49,7 +50,7 @@ $ npm install -g cmake-js
 ```
 
 Before compiling the script to JavaScript (it's written in TypeScript), some 
-other modules need to be installed as well with `$ npm install`. Compile the 
-build script to JavaScript with `$ tsc`.
+other modules need to be installed with `$ npm install`. Compile the build 
+script to JavaScript with `$ tsc`.
 
 When the build script has been compiled, start building with `$ node build`.
