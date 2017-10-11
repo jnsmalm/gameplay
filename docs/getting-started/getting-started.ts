@@ -25,7 +25,7 @@ $.Game.update = () => {
   cube3d.transform.localRotation.rotateY(1)
 }
 
-/*Run the code with the gameplay script (which used the bundled Node.js runtime. 
+/*Run the code with the gameplay script (which uses the bundled Node.js runtime). 
 If everything has gone well you should see a spinning 3D cube.
 
 ```
@@ -59,4 +59,4 @@ It's also recommended that you download
 5. Open the terminal and type `tsc` (to compile) or `tsc -w` (to compile and 
 continuously check for file changes)
 6. TypeScript compiler should now have compiled *cube3d.ts* to *cube3d.js*
-7. Run the script with the Node runtime `% bin/node cube3d.js`*/
+7. Run the script with the gameplay script `% ./gameplay cube3d.js`*/
