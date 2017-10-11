@@ -39,7 +39,7 @@ script to run the *2d-sprites* application:
 % ./gameplay docs/2d-sprites/2d-sprites.js
 ```
 
-## Building from source
+## Build from source
 
 To build Gameplay.js from source, Node.js need to be installed. Two modules, 
 TypeScript and Cmake.js needs to be installed globally as well.
