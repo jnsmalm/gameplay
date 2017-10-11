@@ -11,15 +11,17 @@ can easily use it
 - [2D sprites](2d-sprites/2d-sprites.md) - Draw 2D sprites
 - [Drawing graphics](drawing-graphics/drawing-graphics.md) - Using vertex 
 specification and shaders for drawing graphics
-- [Playing sounds](playing-sounds/playing-sounds.md) Using buffer and source for 
+- [Playing sounds](playing-sounds/playing-sounds.md) - Using buffer and source for 
 playing sounds
-- [Text/input](text-input/text-input.md) Draw text and handle input
-- [Entity/component](entity-component/entity-component.md) How to use the 
-entity-component pattern for structure
+- [Text/input](text-input/text-input.md) - Draw text and handle input
+- [Entity/component](entity-component/entity-component.md) - How to use the 
+entity-component design pattern for structure
+
+### Running tutorials
 
 All the tutorials are applications that can run. For example, use the gameplay 
-script to run the *getting-started* application:
+script to run the *2d-sprites* application:
 
 ```
-% ./gameplay docs/getting-started/getting-started
+% ./gameplay docs/2d-sprites/2d-sprites.js
 ```
