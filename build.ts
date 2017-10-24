@@ -91,12 +91,29 @@ class GLFW extends Addon {
   }
 }
 
+class Assimp extends Addon {
+  constructor() {
+    super("assimp")
+  }
+  async build() {
+    let fmt = platform.archiveFormat
+    let url = `https://github.com/assimp/assimp/archive/v4.0.1.${fmt}`
+    await download(url, `assimp.${fmt}`)
+    await platform.extract(`assimp.${fmt}`, "addons/assimp")
+    await super.build()
+    await copy(
+      `addons/${this.name}/assimp-4.0.1/LICENSE`, 
+      `dist/_licenses/assimp`)
+  }
+}
+
 interface Platform {
   nodeurl: string
   nodedir: string
   nodeexe: string
   gameplay_script: string
   arch: string
+  archiveFormat: string
   copy_gameplay_script(destdir: string): void
   extract(filename: string, dest: string): Promise<void>
   archive(dir: string, filename: string): Promise<void>
@@ -117,6 +134,10 @@ class Macos implements Platform {
 
   get arch() {
     return "x64"
+  }
+
+  get archiveFormat() {
+    return "tar.gz"
   }
 
   get gameplay_script() {
@@ -165,6 +186,10 @@ class Win32 implements Platform {
     return "x86"
   }
 
+  get archiveFormat() {
+    return "zip"
+  }
+
   get gameplay_script() {
     return "gameplay.cmd"
   }
@@ -208,6 +233,7 @@ switch (os.platform()) {
 }
 
 function* addons() {
+  yield new Assimp()
   yield new OpenAL()
   yield new Addon("opengl")
   yield new GLFW()

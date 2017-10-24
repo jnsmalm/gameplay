@@ -1,5 +1,6 @@
 build
 dist
+assimp-4.0.1
 *.tar.gz
 node*
 lib/*.js
