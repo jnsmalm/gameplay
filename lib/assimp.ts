@@ -66,7 +66,7 @@ export module Assimp {
    */
   export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, factory: AssimpMaterialFactory<T>) {
     let data: assimp.Scene
-    if (path.extname("json")) {
+    if (path.extname(filePath) === ".json") {
       data = <assimp.Scene>JSON.parse(fs.readFileSync(filePath, "utf8"));
     } else {
       data = assimp.importFile(filePath)
