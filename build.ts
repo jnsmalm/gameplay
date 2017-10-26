@@ -8,8 +8,8 @@ import * as path from "path"
 import * as unzip from "unzip"
 import * as cpx from "cpx"
 
-const nodever = "7.7.3"
-const gamever = "0.8.3"
+const nodever = "8.5.0"
+const gamever = "0.8.4"
 
 function download(url: string, filename: string) {
   console.log(`download ${url}...`)
@@ -53,11 +53,14 @@ class Addon {
   constructor(protected name: string) {
   }
   async build() {
-    await execute("cmake-js", ["rebuild", "-d", this.name, "-v", nodever])
-    await copy(`${this.name}/build/release/gameplay-${this.name}.node`,
+    await execute(
+      "cmake-js", ["rebuild", "-d", `addons/${this.name}`, "-v", nodever])
+    await copy(
+      `addons/${this.name}/build/release/gameplay-${this.name}.node`,
       `dist/node_modules/gameplay/${this.name}/${this.name}.node`)
     await copyglob(
-      `${this.name}/index*.*`, `dist/node_modules/gameplay/${this.name}`)
+      `addons/${this.name}/index*.*`, 
+      `dist/node_modules/gameplay/${this.name}`)
   }
 }
 
@@ -67,15 +70,51 @@ class OpenAL extends Addon {
   }
   async build() {
     await super.build()
-    await copyglob(`${this.name}/build/release/{libopenal.dylib,OpenAL32.dll}`, 
+    await copyglob(
+      `addons/${this.name}/build/release/{libopenal.dylib,OpenAL32.dll}`, 
       `dist/node_modules/gameplay/${this.name}`)
+    await copy(
+      `addons/${this.name}/openal-soft-1.18.1/copying`, 
+      `dist/_licenses/openal-soft`)
+  }
+}
+
+class GLFW extends Addon {
+  constructor() {
+    super("glfw")
+  }
+  async build() {
+    await super.build()
+    await copy(
+      `addons/${this.name}/glfw-3.2.1/copying.txt`, 
+      `dist/_licenses/glfw`)
+  }
+}
+
+class Assimp extends Addon {
+  constructor() {
+    super("assimp")
+  }
+  async build() {
+    let fmt = platform.archiveFormat
+    let url = `https://github.com/assimp/assimp/archive/v4.0.1.${fmt}`
+    await download(url, `assimp.${fmt}`)
+    await platform.extract(`assimp.${fmt}`, "addons/assimp")
+    await super.build()
+    await copy(
+      `addons/${this.name}/assimp-4.0.1/LICENSE`, 
+      `dist/_licenses/assimp`)
   }
 }
 
 interface Platform {
   nodeurl: string
+  nodedir: string
   nodeexe: string
+  gameplay_script: string
   arch: string
+  archiveFormat: string
+  copy_gameplay_script(destdir: string): void
   extract(filename: string, dest: string): Promise<void>
   archive(dir: string, filename: string): Promise<void>
 }
@@ -85,12 +124,29 @@ class Macos implements Platform {
     return `https://nodejs.org/dist/v${nodever}/node-v${nodever}-darwin-x64.tar.gz`
   }
 
+  get nodedir() {
+    return `node-v${nodever}-darwin-x64`
+  }
+
   get nodeexe() {
-    return `node-v${nodever}-darwin-x64/bin/node`
+    return `${this.nodedir}/bin/node`
   }
 
   get arch() {
     return "x64"
+  }
+
+  get archiveFormat() {
+    return "tar.gz"
+  }
+
+  get gameplay_script() {
+    return "gameplay.sh"
+  }
+
+  async copy_gameplay_script(destdir: string) {
+    await copy("gameplay.sh", destdir + "/gameplay")
+    await execute("chmod", ["+x", "dist/gameplay"])
   }
 
   extract(filename: string, dest: string) {
@@ -118,12 +174,28 @@ class Win32 implements Platform {
     return `https://nodejs.org/dist/v${nodever}/node-v${nodever}-win-x86.zip`
   }
 
+  get nodedir() {
+    return `node-v${nodever}-win-x86`
+  }
+
   get nodeexe() {
-    return `node-v${nodever}-win-x86/node.exe`
+    return `${this.nodedir}/node.exe`
   }
 
   get arch() {
     return "x86"
+  }
+
+  get archiveFormat() {
+    return "zip"
+  }
+
+  get gameplay_script() {
+    return "gameplay.cmd"
+  }
+
+  async copy_gameplay_script(destdir: string) {
+    await copy("gameplay.cmd", destdir + "/gameplay.cmd")
   }
 
   extract(filename: string, dest: string) {
@@ -161,9 +233,10 @@ switch (os.platform()) {
 }
 
 function* addons() {
+  yield new Assimp()
   yield new OpenAL()
   yield new Addon("opengl")
-  yield new Addon("glfw")
+  yield new GLFW()
   yield new Addon("truetype")
   yield new Addon("image")
   yield new Addon("vorbis")
@@ -175,8 +248,12 @@ function* addons() {
   }
   await download(platform.nodeurl, "node.tar.gz")
   await platform.extract("node.tar.gz", ".")
-  await copyglob(platform.nodeexe, "dist/bin")
-  await copyglob("{LICENSE,tsconfig.json}", "dist")
+  await platform.copy_gameplay_script("dist")
+  await copyglob(`${platform.nodeexe}`, "dist")
+  await copy(`${platform.nodedir}/license`, "dist/_licenses/nodejs")
+  await copy("license", "dist/_licenses/gameplayjs")
+  await copyglob("docs/**/*.{ts,js}", "dist/docs")
+  await copy("docs/_content", "dist/docs/_content")
   await copy("lib", "dist/node_modules/gameplay/lib")
   await platform.archive("dist", 
     `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)

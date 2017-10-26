@@ -24,7 +24,7 @@ import * as glfw from "gameplay/glfw"
 import * as gl from "gameplay/opengl"
 
 import { Window, WindowOptions } from "./window"
-import { Mouse, Keyboard, KeyCode  } from "./input"
+import { KeyCode } from "./input"
 import { Color } from "./color"
 import { BlendState, DepthState, RasterizerState } from "./renderstate"
 
@@ -41,23 +41,23 @@ let lastTime = 0
 
 export module Game {
   export let window: Window
-  export let keyboard: Keyboard
-  export let mouse: Mouse
 
-  /** Creates a window, input devices and sets up the game loop. */
+  /** 
+   * Creates a window, input devices and starts running the game loop.
+   */
   export function init(options: GameOptions = {}) {
     this.init = () => {}
 
     let {
       targetElapsedTime = 1 / 60,
-      clearColor = new Color(0.3, 0.3, 0.3, 1),
+      clearColor = new Color(0.9, 0.9, 0.9, 1),
       isFixedTimeStep = true,
       escapeKeyAsExit = true
     } = options
 
     window = new Window(options.window)
-    mouse = new Mouse(window)
-    keyboard = new Keyboard(window)
+
+    setImmediate(run)
 
     timeStep = isFixedTimeStep ?
       new FixedTimeStep(targetElapsedTime) : new TimeStep()
@@ -67,12 +67,11 @@ export module Game {
       window.swapBuffers()
     }
     timeStep.update = (elapsedTime: number) => {
-      keyboard.update()
-      if (escapeKeyAsExit && keyboard.isKeyDown(KeyCode.Escape)) {
+      window.update()
+      if (escapeKeyAsExit && window.input.keys[KeyCode.Escape]) {
         exit()
         return
       }
-      mouse.update()
       update(elapsedTime)
     }
 
@@ -81,10 +80,8 @@ export module Game {
     DepthState.readWrite()
   }
 
-  /** Starts running the game loop. */
-  export function run() {
-    this.run = () => {}
-    window.update()
+  function run() {
+    Window.pollEvents()
     if (window.isClosing) {
       return
     }

@@ -20,7 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
+import * as assimp from "gameplay/assimp"
 import * as fs from "fs"
+import * as path from "path"
 
 import { Texture2D } from "./texture"
 import { Transform } from "./transform"
@@ -57,31 +59,43 @@ class DefaultAssimpMaterialFactory implements AssimpMaterialFactory<AssimpMateri
  */
 export module Assimp {
   /**
-   * Creates a model from a assimp2json file.
+   * Creates a model (with a custom material) from a file.
+   * @param filePath The file path for the model.
+   * @param shader The shader to use when drawing the model.
+   * @param factory The factory to use when converting the assimp material to a custom material.
    */
   export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, factory: AssimpMaterialFactory<T>) {
-    let data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    let data: assimp.Scene
+    if (path.extname(filePath) === ".json") {
+      data = <assimp.Scene>JSON.parse(fs.readFileSync(filePath, "utf8"));
+    } else {
+      data = assimp.importFile(filePath)
+    }
+    if (!data) {
+      throw new TypeError(`Failed to load ${filePath}`)
+    }
     let reader = new AssimpReader<T>(
       filePath.replace(/[^\/]*$/, ''), data, shader, factory);
     let model = new Model<T>(shader)
-    model.meshes = reader.readNodeHierarchy(data.rootnode, model.transform);
+    model.meshes = reader.readNodeHierarchy(data.rootNode, model.transform);
     return model
   }
 
+  /**
+   * Creates a model from a file.
+   * @param filePath The file path for the model.
+   * @param shader The shader to use when drawing the model.
+   */
   export function createModelFromFile(filePath: string, shader: MeshShader<AssimpMaterial>) {
     return createModelFromFileCustomMaterial(
       filePath, shader, new DefaultAssimpMaterialFactory())
   }
-
-  export const boxFilePath = __dirname + "/content/models/box.json"
-
-  export const sphereFilePath = __dirname + "/content/models/sphere.json"
 }
 
 class AssimpReader<T> {
   textures: { [filepath: string]: Texture2D } = {}
 
-  constructor(private path: string, private data: any,
+  constructor(private path: string, private data: assimp.Scene,
     private shader: MeshShader<T>, private factory: AssimpMaterialFactory<T>) { }
 
   static readTransformation(transformation: number[]) {
@@ -92,7 +106,7 @@ class AssimpReader<T> {
     return matrix.transpose(matrix)
   }
 
-  readNodeHierarchy(node: any, transform: Transform, transformation?: Matrix4): Mesh<T>[] {
+  readNodeHierarchy(node: assimp.Node, transform: Transform, transformation?: Matrix4): Mesh<T>[] {
     let meshes: Mesh<T>[] = []
 
     let nodeTransformation =
@@ -121,9 +135,9 @@ class AssimpReader<T> {
     return meshes
   }
 
-  readMesh(data: any, transformation: Matrix4) {
+  readMesh(data: assimp.Mesh, transformation: Matrix4) {
     let mesh = new Mesh<T>(transformation)
-    mesh.material = this.readMaterial(this.data.materials[data.materialindex])
+    mesh.material = this.readMaterial(this.data.materials[data.materialIndex])
 
     for (var i = 0; i < data.vertices.length; i += 3) {
       mesh.geometry.vertices.push(new Vector3(
@@ -135,10 +149,10 @@ class AssimpReader<T> {
         data.normals[i], data.normals[i + 1], data.normals[i + 2]
       ))
     }
-    if (data.texturecoords) {
-      for (var i = 0; i < data.texturecoords[0].length; i += 2) {
+    if (data.textureCoords) {
+      for (var i = 0; i < data.textureCoords[0].length; i += 2) {
         mesh.geometry.texCoords.push(new Vector2(
-          data.texturecoords[0][i], 1 - data.texturecoords[0][i + 1]
+          data.textureCoords[0][i], 1 - data.textureCoords[0][i + 1]
         ))
       }
     }
@@ -149,14 +163,18 @@ class AssimpReader<T> {
     return mesh
   }
 
-  readMaterial(data: any) {
+  readMaterial(data: assimp.Material) {
     let material = new AssimpMaterial()
     for (let i = 0; i < data.properties.length; i++) {
       let value = data.properties[i].value
       switch (data.properties[i].key) {
         case "$tex.file": {
           if (!this.textures[value]) {
-            this.textures[value] = Texture2D.createFromFile(this.path + value)
+            try {
+              this.textures[value] = Texture2D.createFromFile(this.path + value)
+            } catch {
+              continue
+            }
           }
           switch (data.properties[i].semantic) {
             case 1: {

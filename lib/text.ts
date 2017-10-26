@@ -28,6 +28,7 @@ import { Texture2D, TextureDataType, TextureFormat } from "./texture"
 import { Sprite, SpriteBatch, Rectangle } from "./sprite"
 import { Component } from "./entity"
 import { Transform } from "./transform"
+import { Color } from "./color"
 
 class FontGlyph {
   constructor(readonly advance: number, readonly source: Rectangle,
@@ -119,10 +120,15 @@ export enum TextHorizontalAlign {
 export class Text implements Component {
   private _wordSpacing = 1
   private _horizontalAlign = TextHorizontalAlign.Center
-
+  
   sprites: Sprite[] = []
   transform = new Transform()
   pixelsPerUnit = 100
+
+  /**
+   * The color of the text.
+   */
+  color = new Color(0.1, 0.1, 0.1, 1) 
 
   constructor(public font: FontTexture, public spriteBatch: SpriteBatch, private _text: string = "") {
     this.setupSprites()
@@ -182,7 +188,10 @@ export class Text implements Component {
         width += this.wordSpacingWidth
         continue
       }
-      width += this.font.glyphs[this._text[i]].advance
+      let glyph = this.font.glyphs[this._text[i]]
+      if (glyph) {
+        width += glyph.advance
+      }
     }
     return width
   }
@@ -220,9 +229,12 @@ export class Text implements Component {
         position.x += this.wordSpacingWidth
         continue
       }
+      let glyph = this.font.glyphs[this._text[i]]
+      if (!glyph) {
+        continue
+      }
       let kerning = i < this._text.length - 1 ?
         this.font.getKerning(this._text[i], this._text[i + 1]) : 0
-      let glyph = this.font.glyphs[this._text[i]]
 
       this.setupSpriteAsGlyph(this.sprites[i], glyph,
         new Vector2(position.x + glyph.offset.x, position.y))
@@ -232,6 +244,7 @@ export class Text implements Component {
 
   private setupSpriteAsGlyph(sprite: Sprite, glyph: FontGlyph, position: Vector2) {
     sprite.pixelsPerUnit = this.pixelsPerUnit
+    sprite.color = this.color
     sprite.source = glyph.source
     sprite.transform.localPosition.x = position.x / this.pixelsPerUnit
     sprite.transform.localPosition.y =

@@ -94,6 +94,23 @@ static void GetError(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(alGetError());
 }
 
+static void GetSourcef(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  ALuint source = static_cast<ALuint>(args[0]->IntegerValue());
+  ALenum param = static_cast<ALenum>(args[1]->IntegerValue());
+
+  ALfloat value;
+  alGetSourcef(source, param, &value);
+
+  args.GetReturnValue().Set(value);
+}
+
 static void GetSourcei(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
@@ -244,6 +261,7 @@ void Initialize(
   NODE_SET_METHOD(target, "createSource", CreateSource);
   NODE_SET_METHOD(target, "destroyContext", DestroyContext);
   NODE_SET_METHOD(target, "getError", GetError);
+  NODE_SET_METHOD(target, "getSourcef", GetSourcef);
   NODE_SET_METHOD(target, "getSourcei", GetSourcei);
   NODE_SET_METHOD(target, "makeContextCurrent", MakeContextCurrent);
   NODE_SET_METHOD(target, "openDevice", OpenDevice);

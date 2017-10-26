@@ -30,10 +30,38 @@ export interface WindowOptions {
   fullscreen?: boolean
 }
 
+class WindowInput {
+  keys: {
+    [key: number]: InputState
+  } = {}
+  mouseButtons: {
+    [button: number]: InputState
+  } = {}
+  cursor = { x: 0, y: 0 }
+  text = ""
+}
+
+export enum InputState {
+  Released = 0,
+  Pressed = 1,
+  Repeated = 2,
+  Squeezed = 3
+}
+
 export class Window {
+  private _input = { curr: new WindowInput(), next: new WindowInput() }
+
   readonly height: number
   readonly width: number
-  readonly handle: number
+  readonly handle: glfw.GLFWwindow
+
+  /**
+   * Returns the current input state.
+   */
+  get input() {
+    return this._input.curr
+  }
+
   /**
    * Creates a new window and sets OpenGL context.
    */
@@ -66,6 +94,33 @@ export class Window {
 
     let size = glfw.getFramebufferSize(this.handle)
     gl.viewport(0, 0, size.width, size.height)
+
+    glfw.setKeyCallback(this.handle, (key, scancode, action, mods) => {
+      if (action === 0) {
+        // Whenever you poll state, you risk missing the state change you are 
+        // looking for. If a pressed key is released again before you poll its 
+        // state, you will have missed the key press.
+        if (!this._input.next.keys[key]) {
+          this._input.next.keys[key] = action
+        }
+      } else {
+        this._input.next.keys[key] = action
+      }
+    })
+
+    glfw.setCharModsCallback(this.handle, (codepoint, mods) => {
+      this._input.next.text += String.fromCodePoint(codepoint)
+    })
+
+    glfw.setMouseButtonCallback(this.handle, (button, action, mods) => {
+      if (action === 0) {
+        if (!this._input.next.mouseButtons[button]) {
+          this._input.next.mouseButtons[button] = action
+        }
+      } else {
+        this._input.next.mouseButtons[button] = action
+      }
+    })
   }
 
   private setWindowHints(videoMode: glfw.VideoMode) {
@@ -84,8 +139,48 @@ export class Window {
   }
 
   /** Processes all pending events. */
-  update() {
+  static pollEvents() {
     glfw.pollEvents()
+  }
+
+  /** Updates input state. */
+  update() {
+    this._input.curr.text = this._input.next.text
+    this._input.curr.cursor = glfw.getCursorPos(this.handle)
+
+    for (let key in this._input.curr.keys) {
+      if (this._input.curr.keys[key] === InputState.Released) {
+        delete this._input.curr.keys[key]
+        continue
+      }
+      let isPressed = glfw.getKey(this.handle, parseInt(key))
+      if (this._input.curr.keys[key] && isPressed) {
+        this._input.curr.keys[key] = InputState.Squeezed
+      } else {
+        this._input.curr.keys[key] = InputState.Released
+      }
+    }
+    for (let key in this._input.next.keys) {
+      this._input.curr.keys[key] = this._input.next.keys[key]
+    }
+
+    for (let button in this._input.curr.mouseButtons) {
+      if (this._input.curr.mouseButtons[button] === InputState.Released) {
+        delete this._input.curr.mouseButtons[button]
+        continue
+      }
+      let isPressed = glfw.getMouseButton(this.handle, parseInt(button))
+      if (this._input.curr.mouseButtons[button] && isPressed) {
+        this._input.curr.mouseButtons[button] = InputState.Squeezed
+      } else {
+        this._input.curr.mouseButtons[button] = InputState.Released
+      }
+    }
+    for (let button in this._input.next.mouseButtons) {
+      this._input.curr.mouseButtons[button] = this._input.next.mouseButtons[button]
+    }
+
+    this._input.next = new WindowInput()
   }
 
   /** Swaps the front and back buffers. */
@@ -101,5 +196,9 @@ export class Window {
   /** Closes the window. */
   close() {
     glfw.setWindowShouldClose(this.handle, 1)
+  }
+
+  setCursorMode(mode: number) {
+    glfw.setInputMode(this.handle, glfw.CURSOR, mode)
   }
 }

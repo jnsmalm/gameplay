@@ -27,7 +27,6 @@ process.on("exit", (code) => {
   openal.closeDevice(device)
 });
 
-import * as vorbis from "gameplay/vorbis"
 import * as openal from "gameplay/openal"
 
 let device = openal.openDevice()
@@ -58,15 +57,6 @@ export class SoundBuffer {
     this.buffer = openal.createBuffer()
     openal.bufferData(this.buffer, format, data, rate)
   }
-
-  /**
-   * Creates a new sound buffer from a ogg vorbis file.
-   */
-  static createFromVorbisFile(filepath: string) {
-    let data = vorbis.decodeFilename(filepath)
-    return new SoundBuffer(data.channels == 2 ? 
-      SoundFormat.Stereo16 : SoundFormat.Mono16, data.data, data.rate)
-  }
 }
 
 export class SoundSource {
@@ -78,6 +68,17 @@ export class SoundSource {
   constructor(readonly buffer: SoundBuffer) {
     this.source = openal.createSource()
     openal.sourcei(this.source, openal.BUFFER, this.buffer.buffer)
+  }
+
+  /**
+   * Gets or sets the gain.
+   */
+  get gain() {
+    return openal.getSourcef(this.source, openal.GAIN)
+  }
+
+  set gain(gain: number) {
+    openal.sourcef(this.source, openal.GAIN, gain)
   }
 
   /**
@@ -106,5 +107,16 @@ export class SoundSource {
    */
   stop() {
     openal.sourceStop(this.source)
+  }
+
+  /**
+   * Gets or sets the pitch.
+   */
+  get pitch() {
+    return openal.getSourcef(this.source, openal.PITCH)
+  }
+
+  set pitch(pitch: number) {
+    openal.sourcef(this.source, openal.PITCH, pitch)
   }
 }
