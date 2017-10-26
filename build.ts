@@ -49,6 +49,25 @@ async function copyglob(src: string, dest: string) {
   })
 }
 
+async function dropbox(filepath: string) {
+  return new Promise<void>((resolve) => {
+    var Dropbox = require('dropbox')
+    var dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
+    fs.readFile(path.join(__dirname, filepath), function (err, contents) {
+      if (err) {
+        console.log('Error: ', err);
+      }
+      let dest = `/${Date.now()}_${path.basename(filepath)}`
+      console.log(`dropbox ${dest}...`)
+      dbx.filesUpload({ path: dest, contents: contents })
+        .then(resolve)
+        .catch(function (err) {
+          console.log(err);
+        });
+    });
+  })
+}
+
 class Addon {
   constructor(protected name: string) {
   }
@@ -257,4 +276,8 @@ function* addons() {
   await copy("lib", "dist/node_modules/gameplay/lib")
   await platform.archive("dist", 
     `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)
+  if (process.env.DROPBOX_ACCESS_TOKEN) {
+    await dropbox(
+      `/gameplay-v${gamever}-${os.platform()}-${platform.arch}.tar.gz`)
+  }
 })()
