@@ -90,7 +90,7 @@ class OpenAL extends Addon {
   async build() {
     await super.build()
     await copyglob(
-      `addons/${this.name}/build/release/{libopenal.dylib,OpenAL32.dll}`, 
+      `addons/${this.name}/build/release/{libopenal.1.18.1.dylib,OpenAL32.dll}`, 
       `dist/node_modules/gameplay/${this.name}`)
     await copy(
       `addons/${this.name}/openal-soft-1.18.1/copying`, 
