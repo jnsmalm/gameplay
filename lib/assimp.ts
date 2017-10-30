@@ -201,7 +201,7 @@ class AssimpReader<T> {
           if (!this.textures[value]) {
             try {
               this.textures[value] = Texture2D.createFromFile(this.path + value)
-            } catch {
+            } catch (err) {
               continue
             }
           }
