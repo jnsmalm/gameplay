@@ -30,7 +30,7 @@ export interface WindowOptions {
   fullscreen?: boolean
 }
 
-class WindowInput {
+export class WindowInput {
   keys: {
     [key: number]: InputState
   } = {}

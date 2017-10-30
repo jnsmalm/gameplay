@@ -9,6 +9,7 @@
     "lib": [
       "es2017"
     ],
+    "declaration": true,
     "baseUrl": ".",
     "paths": {
       "gameplay/lib": [

@@ -38,7 +38,7 @@ export interface Collider<T> {
   isColliding(collider: T, mtv?: Vector3): boolean
 }
 
-class Projection {
+export class Projection {
   /**
    * Creates a new projection with given min, max.
    */

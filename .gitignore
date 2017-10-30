@@ -3,5 +3,7 @@ dist
 assimp-4.0.1
 *.tar.gz
 node*
+docs/**/*.d.ts
 lib/*.js
+lib/*.d.ts
 *.js
