@@ -48,19 +48,20 @@ reasons:
 - Flexible as JavaScript but with optionally static type checks
 - Catch many errors before running your application
 
-To run the above example in Typescript you need to download the 
+To run the above example in TypeScript you need to download the 
 [latest version](https://www.typescriptlang.org/#download-links) of TypeScript. 
 It's also recommended that you download 
 [Visual Studio Code](https://code.visualstudio.com). Then follow these steps:
 
 1. Start your favorite code editor (which supports TypeScript) and open the 
-Gameplay.js folder
+  Gameplay.js folder
 2. Create a new file *cube3d.ts* with the same contents as *cube3d.js*
-3. Change the line `const $ = require("gameplay/lib")`to `import * as $ from 
-"gameplay/lib"`
-4. You will now get all the benefits (like intellisense) from using TypeScript
-5. Open the terminal and type `tsc --init` to generate a file *tsconfig.json*
-6. Enter `tsc` (to compile) or `tsc -w` (to compile and continuously check for 
-  file changes)
+3. Change the line `const $ = require("gameplay/lib")` to `import * as $ from 
+  "gameplay/lib"`
+4. Type `tsc --init` in the terminal to generate a file *tsconfig.json*, 
+  also type `npm install @types/node` to install typings for Node.js
+5. Edit *tsconfig.json* and set module to "commonjs" and target to "es2017"
+6. Type `tsc` (to compile) or `tsc -w` in the terminal (to compile and 
+  continuously check for file changes)
 7. TypeScript compiler should now have compiled *cube3d.ts* to *cube3d.js*
-8. Run the script with the gameplay script `% ./gameplay cube3d.js`
+8. Run the application with the gameplay script `% ./gameplay cube3d.js`
