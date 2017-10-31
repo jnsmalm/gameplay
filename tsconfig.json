@@ -6,6 +6,7 @@
     "module": "commonjs",
     "target": "es2017",
     "inlineSourceMap": true,
+    "strict": true,
     "lib": [
       "es2017"
     ],

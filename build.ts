@@ -30,39 +30,42 @@ function execute(command: string, args: string[] = []) {
 
 function mkdir(dir: string) {
   console.log(`mkdir ${dir}...`)
-  return new Promise<void>((resolve) => {
-    fs.ensureDir(path.dirname(dir), resolve)
-  })
+  return fs.ensureDir(path.dirname(dir))
 }
 
 async function copy(src: string, dest: string) {
   console.log(`copy "${src}" to ${dest}...`)
   await mkdir(path.dirname(dest))
-  return new Promise<void>((resolve) => {
-    fs.copy(src, dest, null, resolve)
+  return fs.copy(src, dest, {})
+}
+
+function copyglob(src: string, dest: string) {
+  return new Promise<void>((resolve, reject) => {
+    cpx.copy(src, dest, undefined, err => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
   })
 }
 
-async function copyglob(src: string, dest: string) {
-  return new Promise<void>((resolve) => {
-    cpx.copy(src, dest, resolve)
-  })
-}
-
-async function dropbox(filepath: string) {
-  return new Promise<void>((resolve) => {
+function dropbox(filepath: string) {
+  return new Promise<void>((resolve, reject) => {
     var Dropbox = require('dropbox')
     var dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
-    fs.readFile(path.join(__dirname, filepath), function (err, contents) {
+    fs.readFile(path.join(__dirname, filepath), (err, contents) => {
       if (err) {
-        console.log('Error: ', err);
+        reject(err)
+        return
       }
       let dest = `/${Date.now()}_${path.basename(filepath)}`
       console.log(`dropbox ${dest}...`)
       dbx.filesUpload({ path: dest, contents: contents })
         .then(resolve)
-        .catch(function (err) {
-          console.log(err);
+        .catch((err: string) => {
+          reject(err)
         });
     });
   })
@@ -239,7 +242,7 @@ class Win32 implements Platform {
   }
 }
 
-let platform: Platform
+let platform: Platform = new Win32()
 switch (os.platform()) {
   case "win32": {
     platform = new Win32()

@@ -46,7 +46,7 @@ export module Game {
    * Creates a window, input devices and starts running the game loop.
    */
   export function init(options: GameOptions = {}) {
-    this.init = () => {}
+    Game.init = () => {}
 
     let {
       targetElapsedTime = 1 / 60,

@@ -19,59 +19,59 @@ declare module "gameplay/openal" {
   function sourcePlay(source: number): void
   function sourceStop(source: number): void
 
-  const NONE
-  const FALSE
-  const TRUE
-  const SOURCE_RELATIVE
-  const CONE_INNER_ANGLE
-  const CONE_OUTER_ANGLE
-  const PITCH
-  const POSITION
-  const DIRECTION
-  const VELOCITY
-  const LOOPING
-  const BUFFER
-  const GAIN
-  const MIN_GAIN
-  const MAX_GAIN
-  const ORIENTATION
-  const SOURCE_STATE
-  const INITIAL
-  const PLAYING
-  const PAUSED
-  const STOPPED
-  const BUFFERS_QUEUED
-  const BUFFERS_PROCESSED
-  const REFERENCE_DISTANCE
-  const ROLLOFF_FACTOR
-  const CONE_OUTER_GAIN
-  const MAX_DISTANCE
-  const SEC_OFFSET
-  const SAMPLE_OFFSET
-  const BYTE_OFFSET
-  const SOURCE_TYPE
-  const STATIC
-  const STREAMING
-  const UNDETERMINED
-  const FORMAT_MONO8
-  const FORMAT_MONO16
-  const FORMAT_STEREO8
-  const FORMAT_STEREO16
-  const FREQUENCY
-  const BITS
-  const CHANNELS
-  const SIZE
-  const UNUSED
-  const PENDING
-  const PROCESSED
-  const NO_ERROR
-  const INVALID_NAME
-  const INVALID_ENUM
-  const INVALID_VALUE
-  const INVALID_OPERATION
-  const OUT_OF_MEMORY
-  const VENDOR
-  const VERSION
-  const RENDERER
-  const EXTENSIONS
+  const NONE: number
+  const FALSE: number
+  const TRUE: number
+  const SOURCE_RELATIVE: number
+  const CONE_INNER_ANGLE: number
+  const CONE_OUTER_ANGLE: number
+  const PITCH: number
+  const POSITION: number
+  const DIRECTION: number
+  const VELOCITY: number
+  const LOOPING: number
+  const BUFFER: number
+  const GAIN: number
+  const MIN_GAIN: number
+  const MAX_GAIN: number
+  const ORIENTATION: number
+  const SOURCE_STATE: number
+  const INITIAL: number
+  const PLAYING: number
+  const PAUSED: number
+  const STOPPED: number
+  const BUFFERS_QUEUED: number
+  const BUFFERS_PROCESSED: number
+  const REFERENCE_DISTANCE: number
+  const ROLLOFF_FACTOR: number
+  const CONE_OUTER_GAIN: number
+  const MAX_DISTANCE: number
+  const SEC_OFFSET: number
+  const SAMPLE_OFFSET: number
+  const BYTE_OFFSET: number
+  const SOURCE_TYPE: number
+  const STATIC: number
+  const STREAMING: number
+  const UNDETERMINED: number
+  const FORMAT_MONO8: number
+  const FORMAT_MONO16: number
+  const FORMAT_STEREO8: number
+  const FORMAT_STEREO16: number
+  const FREQUENCY: number
+  const BITS: number
+  const CHANNELS: number
+  const SIZE: number
+  const UNUSED: number
+  const PENDING: number
+  const PROCESSED: number
+  const NO_ERROR: number
+  const INVALID_NAME: number
+  const INVALID_ENUM: number
+  const INVALID_VALUE: number
+  const INVALID_OPERATION: number
+  const OUT_OF_MEMORY: number
+  const VENDOR: number
+  const VERSION: number
+  const RENDERER: number
+  const EXTENSIONS: number
 }

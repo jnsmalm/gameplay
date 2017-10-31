@@ -36,7 +36,7 @@ export class Shader {
   readonly program: number
   readonly uniform = new Proxy({}, {
     set: (target: any, p: string, value: any, receiver: any) => {
-      let result: boolean
+      let result = false
       this.useTemporary(() => {
         result = this.setUniform(p, value)
       })

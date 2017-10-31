@@ -22,14 +22,16 @@ SOFTWARE.*/
 
 import * as fs from "fs"
 
-export interface HotSwappable {
+interface HotSwappable {
   init?(): void
 }
 
 export module HotSwap {
   const _done: ((filepath: string) => void)[] = []
   const _fail: ((filepath: string, err: Error) => void)[] = []
-  const exports = {}
+  const exports: {
+    [filepath: string]: any
+  } = {}
   const objects: {
     [filepath: string]: HotSwappable[]
   } = {}

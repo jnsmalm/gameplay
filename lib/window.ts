@@ -67,13 +67,13 @@ export class Window {
    */
   constructor(options: WindowOptions = {}) {
     var {
-      width = options.fullscreen ? null : 1024,
-      height = options.fullscreen ? null : 576,
+      width = options.fullscreen ? 0 : 1024,
+      height = options.fullscreen ? 0 : 576,
       title = "",
       fullscreen = false
     } = options
 
-    let videoMode: glfw.VideoMode
+    let videoMode: glfw.VideoMode | undefined
     if (fullscreen && (!width || !height)) {
       videoMode = glfw.getVideoMode(glfw.getPrimaryMonitor());
       ({ width, height } = videoMode)
@@ -81,7 +81,7 @@ export class Window {
     this.setWindowHints(videoMode)
 
     this.handle = glfw.createWindow(width, height, title,
-      fullscreen ? glfw.getPrimaryMonitor() : null)
+      fullscreen ? glfw.getPrimaryMonitor() : undefined)
     glfw.makeContextCurrent(this.handle)
     gl.init()
 
@@ -123,7 +123,7 @@ export class Window {
     })
   }
 
-  private setWindowHints(videoMode: glfw.VideoMode) {
+  private setWindowHints(videoMode?: glfw.VideoMode) {
     glfw.windowHint(glfw.CONTEXT_VERSION_MAJOR, 3)
     glfw.windowHint(glfw.CONTEXT_VERSION_MINOR, 3)
     glfw.windowHint(glfw.OPENGL_FORWARD_COMPAT, 1)
