@@ -5,9 +5,7 @@ import * as request from "request"
 import * as archiver from "archiver"
 import * as path from "path"
 import * as cpx from "cpx"
-
-// @ts-ignore: Could not find a declaration file for module 'targz'
-import * as targz from "targz"
+import * as tar from "tar"
 
 // @ts-ignore: Could not find a declaration file for module 'unzip'
 import * as unzip from "unzip"
@@ -85,7 +83,7 @@ class Addon {
       `addons/${this.name}/build/release/gameplay-${this.name}.node`,
       `dist/node_modules/gameplay/${this.name}/${this.name}.node`)
     await copyglob(
-      `addons/${this.name}/index*.*`, 
+      `addons/${this.name}/index*.*`,
       `dist/node_modules/gameplay/${this.name}`)
   }
 }
@@ -97,10 +95,10 @@ class OpenAL extends Addon {
   async build() {
     await super.build()
     await copyglob(
-      `addons/${this.name}/build/release/{libopenal.1.dylib,OpenAL32.dll}`, 
+      `addons/${this.name}/build/release/{libopenal.1.dylib,OpenAL32.dll}`,
       `dist/node_modules/gameplay/${this.name}`)
     await copy(
-      `addons/${this.name}/openal-soft-1.18.1/copying`, 
+      `addons/${this.name}/openal-soft-1.18.1/copying`,
       `dist/_licenses/openal-soft`)
   }
 }
@@ -112,7 +110,7 @@ class GLFW extends Addon {
   async build() {
     await super.build()
     await copy(
-      `addons/${this.name}/glfw-3.2.1/copying.txt`, 
+      `addons/${this.name}/glfw-3.2.1/copying.txt`,
       `dist/_licenses/glfw`)
   }
 }
@@ -128,7 +126,7 @@ class Assimp extends Addon {
     await platform.extract(`assimp.${fmt}`, "addons/assimp")
     await super.build()
     await copy(
-      `addons/${this.name}/assimp-4.0.1/LICENSE`, 
+      `addons/${this.name}/assimp-4.0.1/LICENSE`,
       `dist/_licenses/assimp`)
   }
 }
@@ -177,21 +175,18 @@ class Macos implements Platform {
 
   extract(filename: string, dest: string) {
     console.log(`extract ${filename}...`)
-    return new Promise<void>((resolve) => {
-      targz.decompress({ src: filename, dest: dest, tar: {} }, resolve)
+    return tar.x({
+      file: filename
     })
   }
 
   archive(dir: string, filename: string) {
     console.log(`archive ${filename}...`)
-    return new Promise<void>((resolve) => {
-      const output = fs.createWriteStream(__dirname + filename + ".tar.gz")
-        .on("close", resolve);
-      const archive = archiver('tar', { gzip: true });
-      archive.pipe(output);
-      archive.directory(`${dir}/`, false);
-      archive.finalize();
-    })
+    return tar.c({
+      gzip: true,
+      file: __dirname + filename + ".tar.gz",
+      C: dir
+    }, ["."])
   }
 }
 
@@ -228,7 +223,7 @@ class Win32 implements Platform {
     console.log(`extract ${filename}...`)
     return new Promise<void>((resolve) => {
       const stream = fs.createReadStream(path.join(__dirname, filename))
-        .on("close", resolve); 
+        .on("close", resolve);
       stream.pipe(unzip.Extract({ path: dest }));
     })
   }
@@ -281,7 +276,7 @@ function* addons() {
   await copyglob("docs/**/*.{ts,js}", "dist/docs")
   await copy("docs/_content", "dist/docs/_content")
   await copy("lib", "dist/node_modules/gameplay/lib")
-  await platform.archive("dist", 
+  await platform.archive("dist",
     `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)
   if (process.env.DROPBOX_ACCESS_TOKEN) {
     await dropbox(
