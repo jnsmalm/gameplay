@@ -34,7 +34,7 @@ export class Shader {
   private static currentProgram: number
   
   readonly program: number
-  readonly uniform = new Proxy({}, {
+  readonly uniform: any = new Proxy({}, {
     set: (target: any, p: string, value: any, receiver: any) => {
       let result = false
       this.useTemporary(() => {
