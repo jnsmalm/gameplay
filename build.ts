@@ -3,10 +3,14 @@ import * as child_process from "child_process"
 import * as fs from "fs-extra"
 import * as request from "request"
 import * as archiver from "archiver"
-import * as targz from "targz"
 import * as path from "path"
-import * as unzip from "unzip"
 import * as cpx from "cpx"
+
+// @ts-ignore: Could not find a declaration file for module 'targz'
+import * as targz from "targz"
+
+// @ts-ignore: Could not find a declaration file for module 'unzip'
+import * as unzip from "unzip"
 
 const nodever = "8.5.0"
 const gamever = "0.8.4"
