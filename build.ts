@@ -32,13 +32,25 @@ function execute(command: string, args: string[] = []) {
 
 function mkdir(dir: string) {
   console.log(`mkdir ${dir}...`)
-  return fs.ensureDir(path.dirname(dir))
+  return new Promise<void>((resolve, reject) => {
+    fs.ensureDir(path.dirname(dir)).then(() => {
+      resolve()
+    }).catch((err) => {
+      reject(err)
+    })
+  })
 }
 
 async function copy(src: string, dest: string) {
   console.log(`copy "${src}" to ${dest}...`)
   await mkdir(path.dirname(dest))
-  return fs.copy(src, dest, {})
+  return new Promise<void>((resolve, reject) => {
+    fs.copy(src, dest).then(() => {
+      resolve()
+    }).catch((err) => {
+      reject(err)
+    })
+  })
 }
 
 function copyglob(src: string, dest: string) {
