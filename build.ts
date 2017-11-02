@@ -97,7 +97,7 @@ class OpenAL extends Addon {
       `dist/node_modules/gameplay/${this.name}`)
     await copy(
       `addons/${this.name}/openal-soft-1.18.1/copying`,
-      `dist/_licenses/openal-soft`)
+      `dist/third_party_licenses/openal-soft`)
   }
 }
 
@@ -109,7 +109,7 @@ class GLFW extends Addon {
     await super.build()
     await copy(
       `addons/${this.name}/glfw-3.2.1/copying.txt`,
-      `dist/_licenses/glfw`)
+      `dist/third_party_licenses/glfw`)
   }
 }
 
@@ -125,7 +125,7 @@ class Assimp extends Addon {
     await super.build()
     await copy(
       `addons/${this.name}/assimp-4.0.1/LICENSE`,
-      `dist/_licenses/assimp`)
+      `dist/third_party_licenses/assimp`)
   }
 }
 
@@ -269,11 +269,10 @@ function* addons() {
   await platform.extract("node.tar.gz", ".")
   await platform.copy_gameplay_script("dist")
   await copyglob(`${platform.nodeexe}`, "dist")
-  await copy(`${platform.nodedir}/license`, "dist/_licenses/nodejs")
-  await copy("license", "dist/_licenses/gameplayjs")
-  await copyglob("docs/**/*.{ts,js}", "dist/docs")
-  await copy("docs/_content", "dist/docs/_content")
-  await copy("lib", "dist/node_modules/gameplay/lib")
+  await copy(`${platform.nodedir}/license`, "dist/third_party_licenses/nodejs")
+  await copy("LICENSE", "dist/LICENSE")
+  await copyglob("lib/**/{*.js,*.d.ts}", "dist/node_modules/gameplay/lib")
+  await copy("lib/content", "dist/node_modules/gameplay/lib/content")
   await platform.archive("dist",
     `/gameplay-v${gamever}-${os.platform()}-${platform.arch}`)
   if (process.env.DROPBOX_ACCESS_TOKEN) {

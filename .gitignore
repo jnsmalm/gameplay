@@ -6,4 +6,5 @@ node*
 docs/**/*.d.ts
 lib/*.js
 lib/*.d.ts
+*.d.ts
 *.js

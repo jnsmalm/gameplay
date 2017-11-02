@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 import * as fs from "fs"
 
-interface HotSwappable {
+export interface HotSwappable {
   init?(): void
 }
 
