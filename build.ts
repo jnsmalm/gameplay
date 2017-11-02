@@ -30,15 +30,15 @@ function execute(command: string, args: string[] = []) {
   })
 }
 
-async function mkdir(dir: string) {
+function mkdir(dir: string) {
   console.log(`mkdir ${dir}...`)
-  await fs.ensureDir(path.dirname(dir))
+  return fs.ensureDir(path.dirname(dir))
 }
 
 async function copy(src: string, dest: string) {
   console.log(`copy "${src}" to ${dest}...`)
   await mkdir(path.dirname(dest))
-  await fs.copy(src, dest)
+  return fs.copy(src, dest, undefined)
 }
 
 function copyglob(src: string, dest: string) {
