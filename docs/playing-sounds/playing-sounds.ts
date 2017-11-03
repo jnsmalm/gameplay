@@ -33,10 +33,14 @@ let buffer = generateSoundBuffer(2, 440, 22050)
 
 Often, you will want to load the sound from a file rather then directly from 
 memory. Vorbis is an audio compression format which can be loaded using 
-`Vorbis.createSoundBuffer`.*/
+`Vorbis.createSoundBuffer`.
+
+*If you wish to use the same sound as this example, download 
+<a href="assets/eric-skiff/come-and-find-me.ogg?raw=true">come-and-find-me.ogg</a> 
+(right-click and select download/save) to a folder named "assets/eric-skiff".**/
 
 let buffer = $.Vorbis.createSoundBuffer(
-  __dirname + "/../_content/eric-skiff/come-and-find-me.ogg")
+  __dirname + "/assets/eric-skiff/come-and-find-me.ogg")
 
 /*If the sound file you want to load is not in the vorbis format, you can use 
 the [FFmpeg](https://www.ffmpeg.org) tool to convert it. For example, use the 
@@ -73,7 +77,11 @@ $.Game.update = () => {
 }
 
 /*We need to initialize the game to create a window. Let's also draw some 
-instruction text so the user knows how to control the music.*/
+instruction text so the user knows how to control the music.
+
+*If you wish to use the same font as this example, download 
+<a href="assets/roboto/roboto-thin.ttf?raw=true">roboto-thin.ttf</a> (right-click 
+and select download/save) to a folder named "assets/roboto".**/
 
 $.Game.init()
 
@@ -85,7 +93,7 @@ $.Game.draw = () => {
   sbatch.draw()
 }
 
-let roboto = new $.FontTexture(__dirname + "/../_content/roboto/roboto-thin.ttf",
+let roboto = new $.FontTexture(__dirname + "/assets/roboto/roboto-thin.ttf",
   50, $.Text.alphaNumeric + "()/")
 let uitext = new $.Text(
   roboto, sbatch, "Press (P) to play/pause and (S) to stop")
