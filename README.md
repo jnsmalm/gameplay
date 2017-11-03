@@ -31,15 +31,6 @@ playing sounds
 - [Entity/component](docs/entity-component/entity-component.md) - How to use the 
 entity-component design pattern for structure
 
-#### Running tutorials
-
-All the tutorials are applications that can run. For example, use the gameplay 
-script to run the *2d-sprites* application:
-
-```
-% ./gameplay docs/2d-sprites/2d-sprites.js
-```
-
 ## Build from source
 
 To build Gameplay.js from source, Node.js need to be installed. Two modules, 
