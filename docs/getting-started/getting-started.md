@@ -27,8 +27,8 @@ $.Game.update = () => {
 }
 ```
 
-Download <a href="assets/cube3d.json?raw=true" download>cube3d.json</a> to a 
-folder named "assets". Run the application with Gameplay.js (which uses the 
+Download <a href="assets/cube3d.json?raw=true" download="cube3d.json">cube3d.json</a> 
+to a folder named "assets". Run the application with Gameplay.js (which uses the 
 bundled Node.js runtime). If everything has gone well you should see a spinning 
 3D cube.
 
