@@ -3,6 +3,7 @@ import * as fs from "fs"
 import * as path from "path"
 
 glob("docs/**/*.ts", (err, files) => {
+  files = files.filter((s, i) => { return !s.includes(".d.ts") })
   for (let file of files) {
     markdown(`${__dirname}/${file}`)
   }
