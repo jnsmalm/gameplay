@@ -6,7 +6,8 @@
 Gameplay.js is a library for creating native desktop games with JavaScript. 
 It includes bindings to low level APIs for drawing graphics, playing sounds and 
 handling input. Gameplay.js doesn't use HTML5 or run inside a web browser, 
-instead it runs as a native application using Node.js.
+instead it runs as a native application using Node.js. It works on Windows and
+macOS.
 
 ## Getting started
 
