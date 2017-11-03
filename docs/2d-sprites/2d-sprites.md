@@ -30,9 +30,14 @@ When the `SpriteBatch` has been created, we are ready to create a `Sprite` to
 be drawn. The sprite is represented by an image, therefore it requires a 
 `Texture2D` for it to be drawn.
 
+*If you wish to use the same image as this example, download 
+<a href="assets/gameplayjs.png?raw=true">gameplayjs.png</a> (right-click and 
+select download/save) to a folder named "assets". Any other image can be used 
+as well.*
+
 ```javascript
 let sprite = new $.Sprite(sbatch, 
-  $.Texture2D.createFromFile(__dirname + "/../_content/gameplayjs.png"))
+  $.Texture2D.createFromFile(__dirname + "/assets/gameplayjs.png"))
 ```
 
 If you are drawing many sprites with the same image, it's recommended that you 
