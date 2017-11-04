@@ -22,12 +22,16 @@ function download(url: string, filename: string) {
 
 function execute(command: string, args: string[] = []) {
   console.log(`execute "${command}"...`)
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>(resolve => {
     const cmd = child_process.spawn(command, args, { shell: true })
       .on("close", resolve)
+      .on("exit", (code, signal) => {
+        if (code) {
+          process.exit(code)
+        }
+      })
     cmd.stderr.pipe(process.stderr)
     cmd.stdout.pipe(process.stdout)
-    cmd.stderr.on("data", reject)
   })
 }
 
