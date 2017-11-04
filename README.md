@@ -9,17 +9,14 @@ handling input. Gameplay.js doesn't use HTML5 or run inside a web browser,
 instead it runs as a native application using Node.js. It works on Windows and
 macOS.
 
-## Getting started
-
-- [Getting started](docs/getting-started/getting-started.md) - Get started and 
-create a spinning 3D cube
-
 ## Documentation
 
 The documentation is written like tutorials which are generated from actual 
 source code. The code is written in TypeScript, which should be simple to 
 convert into plain JavaScript if you would prefer that.
 
+- [Getting started](docs/getting-started/getting-started.md) - Get started and 
+create your first Gameplay.js application
 - [Game loop](docs/game-loop/game-loop.md) - Learn about the game loop and how you 
 can easily use it 
 - [2D sprites](docs/2d-sprites/2d-sprites.md) - Draw 2D sprites
