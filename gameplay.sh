@@ -1,2 +1,2 @@
 #!/bin/bash
-$(dirname "$0")/node "$@"
+$(dirname "$0")/bin/node "$@"

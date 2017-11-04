@@ -268,7 +268,7 @@ function* addons() {
   await download(platform.nodeurl, "node.tar.gz")
   await platform.extract("node.tar.gz", ".")
   await platform.copy_gameplay_script("dist")
-  await copyglob(`${platform.nodeexe}`, "dist")
+  await copyglob(`${platform.nodeexe}`, "dist/bin")
   await copy(`${platform.nodedir}/license`, "dist/third_party_licenses/nodejs")
   await copy("LICENSE", "dist/LICENSE")
   await copyglob("lib/**/{*.js,*.d.ts}", "dist/node_modules/gameplay/lib")
