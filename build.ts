@@ -179,7 +179,8 @@ class Macos implements Platform {
   extract(filename: string, dest: string) {
     console.log(`extract ${filename}...`)
     return tar.x({
-      file: filename
+      file: filename,
+      C: dest
     })
   }
 
