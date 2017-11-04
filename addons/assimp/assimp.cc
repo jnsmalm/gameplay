@@ -250,13 +250,16 @@ static void ImportFile(const FunctionCallbackInfo<Value>& args) {
   }
   String::Utf8Value filename(args[0]);
 
+  int processFlags = aiProcessPreset_TargetRealtime_Fast;
+  if (args[1]->IsNumber()) {
+    processFlags = args[1]->NumberValue();
+  }
+
   Assimp::Importer importer;
   importer.SetPropertyInteger(
     AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
 
-  const aiScene* scene = importer.ReadFile(*filename, 
-    aiProcessPreset_TargetRealtime_MaxQuality);
-
+  const aiScene* scene = importer.ReadFile(*filename, processFlags);
   if (scene == nullptr) {
     return;
   }

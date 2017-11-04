@@ -61,7 +61,12 @@ entity.addComponent(new Spinner())
 
 /*The entity also needs a visual representation, otherwise we wouldn't be able 
 to see it. For this we add a `Sprite` component. Also, before creating any 
-graphic objects, `Game` must be initialized.*/
+graphic objects, `Game` must be initialized.
+
+*If you wish to use the same image as this example, download 
+<a href="assets/gameplayjs.png?raw=true">gameplayjs.png</a> (right-click and 
+select download/save) to a folder named "assets". Any other image can be used 
+as well.**/
 
 $.Game.init()
 
@@ -69,7 +74,7 @@ let camera = $.Camera.createDefault($.Game.window)
 let sbatch = new $.SpriteBatch(camera)
 
 entity.addComponent(new $.Sprite(sbatch,
-  $.Texture2D.createFromFile(__dirname + "/../_content/gameplayjs.png")))
+  $.Texture2D.createFromFile(__dirname + "/assets/gameplayjs.png")))
 
 /*Set `update()` and `draw()` for our game so that the entity gets updated and 
 drawn.*/

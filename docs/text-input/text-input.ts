@@ -24,11 +24,15 @@ Creating the `FontTexture` requires a font file and the height (in pixels)
 for the font. The constructor also requires a string `chars` containing the 
 characters you wish to draw with that font. `Text.alphaNumeric` contains the 
 alpha numeric characters A-Z, a-z and 0-9. If you wish to be able to draw other 
-characters, simply append them to the string.*/
+characters, simply append them to the string.
+
+*If you wish to use the same font as this example, download 
+<a href="assets/roboto/roboto-thin.ttf?raw=true">roboto-thin.ttf</a> (right-click 
+and select download/save) to a folder named "assets/roboto".**/
 
 let chars = $.Text.alphaNumeric + ",."
 let roboto = new $.FontTexture(
-  __dirname + "/../_content/roboto/roboto-thin.ttf", 70, chars)
+  __dirname + "/assets/roboto/roboto-thin.ttf", 70, chars)
 
 /*Create the `Text` object, which is used for setting up and placing the 
 character sprites.*/

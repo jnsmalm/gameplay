@@ -54,6 +54,35 @@ class DefaultAssimpMaterialFactory implements AssimpMaterialFactory<AssimpMateri
   }
 }
 
+export enum AssimpPostProcessSteps {
+  CalcTangentSpace = 0x1,
+  JoinIdenticalVertices = 0x2,
+  MakeLeftHanded = 0x4,
+  Triangulate = 0x8,
+  RemoveComponent = 0x10,
+  GenNormals = 0x20,
+  GenSmoothNormals = 0x40,
+  SplitLargeMeshes = 0x80,
+  PreTransformVertices = 0x100,
+  LimitBoneWeights = 0x200,
+  ValidateDataStructure = 0x400,
+  ImproveCacheLocality = 0x800,
+  RemoveRedundantMaterials = 0x1000,
+  FixInfacingNormals = 0x2000,
+  SortByPType = 0x8000,
+  FindDegenerates = 0x10000,
+  FindInvalidData = 0x20000,
+  GenUVCoords = 0x40000,
+  TransformUVCoords = 0x80000,
+  FindInstances = 0x100000,
+  OptimizeMeshes  = 0x200000,
+  OptimizeGraph  = 0x400000,
+  FlipUVs = 0x800000,
+  FlipWindingOrder  = 0x1000000,
+  SplitByBoneCount  = 0x2000000,
+  Debone  = 0x4000000
+}
+
 /**
  * Open Asset Import Library
  */
@@ -64,12 +93,12 @@ export module Assimp {
    * @param shader The shader to use when drawing the model.
    * @param factory The factory to use when converting the assimp material to a custom material.
    */
-  export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, factory: AssimpMaterialFactory<T>) {
+  export function createModelFromFileCustomMaterial<T>(filePath: string, shader: MeshShader<T>, factory: AssimpMaterialFactory<T>, postProcessSteps?: AssimpPostProcessSteps) {
     let data: assimp.Scene
     if (path.extname(filePath) === ".json") {
       data = <assimp.Scene>JSON.parse(fs.readFileSync(filePath, "utf8"));
     } else {
-      data = assimp.importFile(filePath)
+      data = assimp.importFile(filePath, postProcessSteps)
     }
     if (!data) {
       throw new TypeError(`Failed to load ${filePath}`)
@@ -86,9 +115,9 @@ export module Assimp {
    * @param filePath The file path for the model.
    * @param shader The shader to use when drawing the model.
    */
-  export function createModelFromFile(filePath: string, shader: MeshShader<AssimpMaterial>) {
+  export function createModelFromFile(filePath: string, shader: MeshShader<AssimpMaterial>, postProcessSteps?: AssimpPostProcessSteps) {
     return createModelFromFileCustomMaterial(
-      filePath, shader, new DefaultAssimpMaterialFactory())
+      filePath, shader, new DefaultAssimpMaterialFactory(), postProcessSteps)
   }
 }
 
@@ -172,7 +201,7 @@ class AssimpReader<T> {
           if (!this.textures[value]) {
             try {
               this.textures[value] = Texture2D.createFromFile(this.path + value)
-            } catch {
+            } catch (err) {
               continue
             }
           }

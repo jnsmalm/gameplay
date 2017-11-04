@@ -37,7 +37,7 @@ declare module "gameplay/opengl" {
   function shaderSource(shader: number, source: string): void
   function texImage2D(target: number, level: number, internalFormat: number,
     width: number, height: number, border: number, format: number,
-    type: number, data: ArrayBufferView): void
+    type: number, data: ArrayBufferView | null): void
   function texSubImage2D(target: number, level: number, xoffset: number,
     yoffset: number, width: number, height: number, format: number,
     type: number, data: ArrayBufferView): void
@@ -47,7 +47,7 @@ declare module "gameplay/opengl" {
   function uniform3f(
     location: number, v0: number, v1: number, v2: number): void
   function uniformMatrix4fv(
-    location: number, transpose: boolean, value: ArrayBufferView)
+    location: number, transpose: boolean, value: ArrayBufferView): void
   function useProgram(program: number): void
   function vertexAttribPointer(index: number, size: number, type: number,
     normalized: boolean, stride: number, offset: number): void

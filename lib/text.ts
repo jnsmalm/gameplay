@@ -30,7 +30,7 @@ import { Component } from "./entity"
 import { Transform } from "./transform"
 import { Color } from "./color"
 
-class FontGlyph {
+export class FontGlyph {
   constructor(readonly advance: number, readonly source: Rectangle,
     readonly offset: Vector2) { }
 }

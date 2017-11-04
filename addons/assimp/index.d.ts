@@ -28,5 +28,5 @@ declare module "gameplay/assimp" {
     meshes: Mesh[]
     materials: Material[]
   }
-  function importFile(filepath: string): Scene
+  function importFile(filepath: string, postProcessSteps?: number): Scene
 }

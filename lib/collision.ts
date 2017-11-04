@@ -38,7 +38,7 @@ export interface Collider<T> {
   isColliding(collider: T, mtv?: Vector3): boolean
 }
 
-class Projection {
+export class Projection {
   /**
    * Creates a new projection with given min, max.
    */
@@ -89,7 +89,7 @@ export class Shape {
    */
   static isIntersecting(a: Shape, b: Shape, axes: Vector3[], mtv?: Vector3) {
     let overlap = Number.MAX_VALUE
-    let smallest: Vector3 = null
+    let smallest: Vector3 | undefined
 
     for (let axis of axes) {
       let p1 = a.project(axis)
@@ -104,7 +104,7 @@ export class Shape {
         smallest = axis
       }
     }
-    if (mtv) {
+    if (mtv && smallest) {
       smallest.copy(mtv)
       let d = Vector3.subtract(a.center, b.center, vector.next())
       if (Vector3.dot(d, mtv) < 0) {

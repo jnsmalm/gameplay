@@ -64,7 +64,7 @@ export class Sprite implements Component {
    */
   source = new Rectangle()
   
-  constructor(public spriteBatch: SpriteBatch, public texture: Texture2D = null) {
+  constructor(public spriteBatch: SpriteBatch, public texture?: Texture2D) {
     if (texture) {
       this.source = new Rectangle(0, 0, texture.width, texture.height)
     }
@@ -154,6 +154,9 @@ export class SpriteBatch {
     let texture = this.sprites[0].texture
 
     for (let sprite of this.sprites) {
+      if (!texture || !sprite.texture) {
+        continue
+      }
       if (spriteCount === this.maxBatchSize || 
           texture !== sprite.texture || drawOrder != sprite.drawOrder) {
         this.drawBatch(spriteCount, texture)
@@ -164,7 +167,7 @@ export class SpriteBatch {
       this.vertices.add(sprite)
       this.indicies.add(spriteCount++)
     }
-    if (spriteCount > 0) {
+    if (spriteCount > 0 && texture) {
       this.drawBatch(spriteCount, texture)
       this.sprites.length = 0
     }
@@ -174,7 +177,7 @@ export class SpriteBatch {
    * Sorts the sprites by texture and draw order.
    */
   private sortSprites(a: Sprite, b: Sprite) {
-    if (a.drawOrder === b.drawOrder) {
+    if (a.drawOrder === b.drawOrder && a.texture && b.texture) {
       return a.texture.texture - b.texture.texture
     }
     return a.drawOrder - b.drawOrder
@@ -239,6 +242,9 @@ class SpriteVertexArray extends Float32Array {
    * Returns the texture coordinates for a sprite.
    */
   getTextureCoordinates(sprite: Sprite) {
+    if (!sprite.texture) {
+      return new Rectangle(0, 0, 0, 0)
+    }
     let w = sprite.texture.width
     let h = sprite.texture.height
     return new Rectangle(

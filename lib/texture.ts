@@ -124,7 +124,7 @@ export class Texture2D {
   }
 
   /** Sets the data for the texture. */
-  setData(data: ArrayBufferView) {
+  setData(data: ArrayBufferView | null) {
     this.useTemporary(() => {
       gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat, this.width, 
         this.height, 0, this.format, this.dataType, data)

@@ -2,15 +2,20 @@ import * as glob from "glob"
 import * as fs from "fs"
 import * as path from "path"
 
-glob("docs/**/*.ts", (err, files: string[]) => {
+glob("docs/**/*.ts", (err, files) => {
+  files = files.filter((s, i) => { return !s.includes(".d.ts") })
   for (let file of files) {
     markdown(`${__dirname}/${file}`)
   }
 })
 
 function parse(s: string) {
+  let comnts = s.match(/\/\*([\s\S]*?)\*\//g)
+  if (!comnts) {
+    comnts = []
+  }
   return {
-    comnts: s.match(/\/\*([\s\S]*?)\*\//g),
+    comnts: comnts,
     blocks: s.split(/\/\*([\s\S]*?)\*\//g).filter((s) => {
       return s
     })
@@ -19,10 +24,13 @@ function parse(s: string) {
 
 function code(s: string, lang: string) {
   let tick = "```"
-  let beg = s.match(/\n./)[0]
-  let end = s.match(/.\n/g).slice(-1)[0]
-  let xxx = before(s, beg, `\n${tick+lang}`)
-  let tst = after(xxx, end, `\n${tick}`)
+  let beg = s.match(/\n./)
+  let end = s.match(/.\n/g)
+  if (!beg || !end) {
+    throw new TypeError()
+  }
+  let xxx = before(s, beg[0], `\n${tick+lang}`)
+  let tst = after(xxx, end.slice(-1)[0], `\n${tick}`)
   return tst
 }
 
