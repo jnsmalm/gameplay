@@ -25,7 +25,7 @@ $.Game.update = () => {
   cube3d.transform.localRotation.rotateY(1)
 }
 
-/*Download <a href="gameplayjs.com/cube3d.json" download>cube3d.json</a> 
+/*Download <a href="www.gameplayjs.com/cube3d.json" download>cube3d.json</a> 
 (right-click and select download/save) to a folder named "assets". Run the 
 application with Gameplay.js (which uses the bundled Node.js runtime). If 
 everything has gone well you should see a spinning 3D cube.
