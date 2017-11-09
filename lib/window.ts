@@ -28,6 +28,7 @@ export interface WindowOptions {
   height?: number
   title?: string
   fullscreen?: boolean
+  samples?: number
 }
 
 export class WindowInput {
@@ -70,7 +71,8 @@ export class Window {
       width = options.fullscreen ? 0 : 1024,
       height = options.fullscreen ? 0 : 576,
       title = "",
-      fullscreen = false
+      fullscreen = false,
+      samples = 0
     } = options
 
     let videoMode: glfw.VideoMode | undefined
@@ -78,7 +80,7 @@ export class Window {
       videoMode = glfw.getVideoMode(glfw.getPrimaryMonitor());
       ({ width, height } = videoMode)
     }
-    this.setWindowHints(videoMode)
+    this.setWindowHints(videoMode, samples)
 
     this.handle = glfw.createWindow(width, height, title,
       fullscreen ? glfw.getPrimaryMonitor() : undefined)
@@ -94,6 +96,10 @@ export class Window {
 
     let size = glfw.getFramebufferSize(this.handle)
     gl.viewport(0, 0, size.width, size.height)
+
+    if (samples) {
+      gl.enable(gl.MULTISAMPLE)
+    }
 
     glfw.setKeyCallback(this.handle, (key, scancode, action, mods) => {
       if (action === 0) {
@@ -123,11 +129,12 @@ export class Window {
     })
   }
 
-  private setWindowHints(videoMode?: glfw.VideoMode) {
+  private setWindowHints(videoMode: glfw.VideoMode | undefined, samples: number) {
     glfw.windowHint(glfw.CONTEXT_VERSION_MAJOR, 3)
     glfw.windowHint(glfw.CONTEXT_VERSION_MINOR, 3)
     glfw.windowHint(glfw.OPENGL_FORWARD_COMPAT, 1)
     glfw.windowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+    glfw.windowHint(glfw.SAMPLES, samples)
 
     if (!videoMode) {
       return
