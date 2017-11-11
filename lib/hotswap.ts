@@ -27,14 +27,17 @@ export interface HotSwappable {
 }
 
 export module HotSwap {
-  const _done: ((filepath: string) => void)[] = []
-  const _fail: ((filepath: string, err: Error) => void)[] = []
-  const exports: {
-    [filepath: string]: any
-  } = {}
   const objects: {
     [filepath: string]: HotSwappable[]
   } = {}
+  const exports: {
+    [filepath: string]: any
+  } = {}
+
+  /**
+   * Function called when file has been changed.
+   */
+  export let fileChanged: (filepath: string, error: any) => void
 
   /**
    * Enables an object to swap prototype at runtime when the file changes.
@@ -78,29 +81,16 @@ export module HotSwap {
         object.init()
       }
     } catch (err) {
-      for (let cb of _fail) {
-        cb(filepath, err)
+      if (HotSwap.fileChanged) {
+        HotSwap.fileChanged(filepath, err)
+      } else {
+        throw err
       }
     }
   }
 
-  /**
-   * Adds a function to be called when hotswap failed.
-   */
-  export function fail(callback: (filepath: string) => void) {
-    _fail.push(callback)
-  }
-
-  /**
-   * Adds a function to be called when hotswap is done.
-   */
-  export function done(callback: (filepath: string) => void) {
-    _done.push(callback)
-  }
-
   function changed(filepath: string) {
     try {
-      // Remove cached module to require the modu
       delete require.cache[require.resolve(filepath)]
       exports[filepath] = require(filepath)
 
@@ -115,12 +105,14 @@ export module HotSwap {
           object.init()
         }
       }
-      for (let cb of _done) {
-        cb(filepath)
+      if (HotSwap.fileChanged) {
+        HotSwap.fileChanged(filepath, undefined)
       }
     } catch (err) {
-      for (let cb of _fail) {
-        cb(filepath, err)
+      if (HotSwap.fileChanged) {
+        HotSwap.fileChanged(filepath, err)
+      } else {
+        throw err
       }
       return
     }
