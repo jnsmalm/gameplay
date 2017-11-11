@@ -22,13 +22,13 @@ SOFTWARE.*/
 
 import * as fs from "fs"
 
-export interface HotSwappable {
+interface Initializable {
   init?(): void
 }
 
 export module HotSwap {
   const objects: {
-    [filepath: string]: HotSwappable[]
+    [filepath: string]: Initializable[]
   } = {}
   const exports: {
     [filepath: string]: any
@@ -41,8 +41,10 @@ export module HotSwap {
 
   /**
    * Enables an object to swap prototype at runtime when the file changes.
+   * @param object Object to enable hot swap.
+   * @param module Module the objects prototype is exported from.
    */
-  export function enable(object: HotSwappable, module: NodeModule) {
+  export function enable(object: object, module: NodeModule) {
     let filepath = module.filename
 
     if (!exports[filepath]) {
@@ -77,8 +79,9 @@ export module HotSwap {
     objects[filepath].push(object)
 
     try {
-      if (object.init) {
-        object.init()
+      let initializable = <Initializable>object
+      if (initializable.init) {
+        initializable.init()
       }
     } catch (err) {
       if (HotSwap.fileChanged) {
