@@ -38,7 +38,7 @@ export class Camera implements Component {
   /**
    * Creates a new camera.
    */
-  constructor(public aspect: number, public near = 0.1, public far = 1000,
+  constructor(public aspectRatio: number, public near = 0.1, public far = 1000,
     public fieldOfView = 45, public orthographic = false,
     public orthographicSize = 5) { }
 
@@ -62,12 +62,12 @@ export class Camera implements Component {
    */
   getProjection(out = new Matrix4()) {
     if (this.orthographic) {
-      var w = this.orthographicSize * this.aspect
+      var w = this.orthographicSize * this.aspectRatio
       return Matrix4.createOrtho(-w, w, -this.orthographicSize,
         this.orthographicSize, this.near, this.far, out)
     }
     return Matrix4.createPerspective(
-      this.fieldOfView, this.aspect, this.near, this.far, out)
+      this.fieldOfView, this.aspectRatio, this.near, this.far, out)
   }
 
   /**
@@ -81,7 +81,7 @@ export class Camera implements Component {
     let center = Vector3.add(position, forward, vector.next())
     return Matrix4.createLookAt(position, center, up, out)
   }
-  
+
   /**
    * Returns the view projection matrix.
    */
