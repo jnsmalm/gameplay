@@ -188,8 +188,6 @@ export class BoxCollider implements Component {
    */
   update() {
     let world = this.transform.getWorldMatrix(matrix.next())
-    let scaling = this.transform.getScaling(vector.next())
-
     for (let i = 0; i < 8; i++) {
       let point = this._shape.points[i]
       for (let j = 0; j < 3; j++) {
@@ -246,15 +244,17 @@ export class BoxCollider implements Component {
 
   private getClosestPoint(point: Vector3, out: Vector3) {
     let diff = Vector3.subtract(point, this._shape.center, vector.next())
+    let scal = this.transform.getScaling(vector.next())
+    let exts = $.Vector3.multiply(this.extents, scal, vector.next())
 
     out.fill(0)
     for (var i = 0; i < 3; i++) {
       let dist = Vector3.dot(diff, this._shape.normals[i])
-      if (dist > this.extents[i]) {
-        dist = this.extents[i]
+      if (dist > exts[i]) {
+        dist = exts[i]
       }
-      if (dist < -this.extents[i]) {
-        dist = -this.extents[i]
+      if (dist < -exts[i]) {
+        dist = -exts[i]
       }
       Vector3.add(out, this._shape.normals[i].scale(dist, vector.next()), out)
     }
