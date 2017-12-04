@@ -245,7 +245,7 @@ export class BoxCollider implements Component {
   private getClosestPoint(point: Vector3, out: Vector3) {
     let diff = Vector3.subtract(point, this._shape.center, vector.next())
     let scal = this.transform.getScaling(vector.next())
-    let exts = $.Vector3.multiply(this.extents, scal, vector.next())
+    let exts = Vector3.multiply(this.extents, scal, vector.next())
 
     out.fill(0)
     for (var i = 0; i < 3; i++) {
