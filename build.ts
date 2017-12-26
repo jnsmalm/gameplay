@@ -11,7 +11,7 @@ import * as tar from "tar"
 import * as unzip from "unzip"
 
 const nodever = "8.5.0"
-const gamever = "0.8.5"
+const gamever = "0.9.0"
 
 function download(url: string, filename: string) {
   console.log(`download ${url}...`)
