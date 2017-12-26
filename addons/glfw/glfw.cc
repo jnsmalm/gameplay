@@ -38,6 +38,7 @@ public:
 
   Isolate* isolate() { return isolate_; }
   Persistent<Function>* charModsCallback() { return &charModsCallback_; }
+  Persistent<Function>* framebufferSizeCallback() { return &framebufferSizeCallback_; }
   Persistent<Function>* keyCallback() { return &keyCallback_; }
   Persistent<Function>* mouseButtonCallback() { return &mouseButtonCallback_; }
   GLFWwindow* window() { return window_; }
@@ -45,6 +46,7 @@ public:
 private:
   Isolate* isolate_;
   Persistent<Function> charModsCallback_;
+  Persistent<Function> framebufferSizeCallback_;
   Persistent<Function> keyCallback_;
   Persistent<Function> mouseButtonCallback_;
   GLFWwindow* window_;
@@ -281,6 +283,39 @@ static void SetCharModsCallback(const FunctionCallbackInfo<Value>& args) {
   glfwSetCharModsCallback(window->window(), charModsFunc);
 }
 
+static void SetFramebufferSizeCallback(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (!args[0]->IsObject() || !(args[1]->IsFunction() || args[1]->IsNull())) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+  Window* window = ObjectWrap::Unwrap<Window>(args[0]->ToObject());
+
+  if (args[1]->IsNull()) {
+    glfwSetFramebufferSizeCallback(window->window(), nullptr);
+    return;
+  }
+  Handle<Function> callback = Handle<Function>::Cast(args[1]);
+  window->framebufferSizeCallback()->Reset(isolate, callback);
+
+  GLFWframebuffersizefun cbfun = 
+      [](GLFWwindow* window, int width, int height) {
+    Window* wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    HandleScope scope(wnd->isolate());
+    
+    Local<Function> callback = 
+      Local<Function>::New(wnd->isolate(), *wnd->framebufferSizeCallback());
+    Local<Value> argv[2] = {
+      Number::New(wnd->isolate(), width),
+      Number::New(wnd->isolate(), height)
+    };
+    callback->Call(callback, 2, argv);
+  };
+  glfwSetFramebufferSizeCallback(window->window(), cbfun);
+}
+
 static void SetMouseButtonCallback(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
@@ -429,6 +464,7 @@ void Initialize(
   NODE_SET_METHOD(target, "pollEvents", PollEvents);
   NODE_SET_METHOD(target, "setInputMode", SetInputMode);
   NODE_SET_METHOD(target, "setCharModsCallback", SetCharModsCallback);
+  NODE_SET_METHOD(target, "setFramebufferSizeCallback", SetFramebufferSizeCallback);
   NODE_SET_METHOD(target, "setMouseButtonCallback", SetMouseButtonCallback);
   NODE_SET_METHOD(target, "setKeyCallback", SetKeyCallback);
   NODE_SET_METHOD(target, "setWindowShouldClose", SetWindowShouldClose);

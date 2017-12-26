@@ -27,6 +27,7 @@ playing sounds
 - [Text/input](docs/text-input/text-input.md) - Draw text and handle input
 - [Entity/component](docs/entity-component/entity-component.md) - How to use the 
 entity-component design pattern for structure
+- [Collision detection](docs/collision-detection/collision-detection.md) - Bouncing balls with simpler physics
 
 ## Build from source
 

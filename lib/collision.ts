@@ -20,25 +20,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-import { Vector3 } from "./math"
+import { Vector3, Matrix4, Quaternion } from "./math"
 import { Component } from "./entity"
 import { Pool } from "./utils"
 import { Transform } from "./transform"
 
 const vector = new Pool(Vector3, 20)
+const quaternion = new Pool(Quaternion, 20)
+const matrix = new Pool(Matrix4, 20)
 
-/**
- * Represents an object which can collide with other objects.
- */
-export interface Collider<T> {
-  /**
-   * Returns true if the objects are colliding.
-   * @param mtv Minumum translation vector, used for collision response.
-   */
-  isColliding(collider: T, mtv?: Vector3): boolean
-}
-
-export class Projection {
+class Projection {
   /**
    * Creates a new projection with given min, max.
    */
@@ -59,7 +50,7 @@ export class Projection {
 /**
  * Represents a shape for use with the Separating Axis Theorem (SAT).
  */
-export class Shape {
+class Shape {
   points: Vector3[] = []
   radius = 0
   center = new Vector3()
@@ -118,12 +109,13 @@ export class Shape {
   }
 }
 
-export class SphereCollider implements Component, Collider<SphereCollider> {
-  private shape = new Shape()
+export class SphereCollider implements Component {
+  private _shape = new Shape()
+
   transform = new Transform()
 
-  constructor(public radius = 0) {
-    this.shape.points.push(new Vector3())
+  constructor(public radius: number) {
+    this._shape.points.push(new Vector3())
   }
 
   /**
@@ -139,23 +131,133 @@ export class SphereCollider implements Component, Collider<SphereCollider> {
   update() {
     // For a sphere the center and the single point is the same.
     this.transform.getPosition(vector.next())
-      .copy(this.shape.center)
-      .copy(this.shape.points[0])
+      .copy(this._shape.center)
+      .copy(this._shape.points[0])
 
     // We need to multiply the radius with the scaling. We must choose a 
     // single component of the scaling, we choose the 'x' component.
-    this.shape.radius = 
+    this._shape.radius =
       this.radius * this.transform.getScaling(vector.next())[0]
   }
 
-  isColliding(collider: SphereCollider, mtv?: Vector3) {
+  isColliding(collider: SphereCollider | BoxCollider, mtv?: Vector3) {
+    if (collider instanceof BoxCollider) {
+      let result = collider.isColliding(this, mtv)
+      if (mtv) {
+        mtv.scale(-1, mtv)
+      }
+      return result
+    }
     let axes: Vector3[] = []
 
     // For two spheres there is only one axis test
-    let axis = Vector3.subtract(
-      this.shape.center, collider.shape.center, vector.next());
+    let axis = Vector3.subtract(this._shape.center, collider._shape.center, vector.next())
     axes.push(axis.normalize(axis))
-    
-    return Shape.isIntersecting(this.shape, collider.shape, axes, mtv)
+
+    return Shape.isIntersecting(this._shape, collider._shape, axes, mtv)
+  }
+}
+
+export class BoxCollider implements Component {
+  private static _points = [
+    -1, +1, -1, +1, +1, -1, -1, -1, -1, +1, -1, -1,
+    -1, +1, +1, +1, +1, +1, -1, -1, +1, +1, -1, +1
+  ]
+  private _shape = new Shape()
+
+  transform = new Transform()
+
+  constructor(public extents: Vector3) {
+    for (let i = 0; i < 8; i++) {
+      this._shape.points.push(new Vector3());
+    }
+    for (let i = 0; i < 3; i++) {
+      this._shape.normals.push(new Vector3());
+    }
+  }
+
+  /**
+   * Attaches the collider to a transform.
+   */
+  attach(transform: Transform) {
+    this.transform.parent = transform
+  }
+
+  /**
+   * Updates the collider to be able to perform collision tests.
+   */
+  update() {
+    let world = this.transform.getWorldMatrix(matrix.next())
+    for (let i = 0; i < 8; i++) {
+      let point = this._shape.points[i]
+      for (let j = 0; j < 3; j++) {
+        point[j] = this.extents[j] * BoxCollider._points[i * 3 + j]
+      }
+      point.transform(world, point)
+    }
+    this._shape.normals[0].set([1, 0, 0])
+    this._shape.normals[1].set([0, 1, 0])
+    this._shape.normals[2].set([0, 0, 1])
+
+    let rotation = this.transform.getRotation(quaternion.next())
+    for (let i = 0; i < 3; i++) {
+      this._shape.normals[i].transform(rotation, this._shape.normals[i])
+      this._shape.normals[i].normalize(this._shape.normals[i])
+    }
+    this.transform.getPosition(this._shape.center)
+  }
+
+  isColliding(collider: BoxCollider | SphereCollider, mtv?: Vector3) {
+    let axes: Vector3[] = []
+
+    if (collider instanceof BoxCollider) {
+      // The first 6 axes (from the face normals) are used to check if there is 
+      // a corner of one object intersecting a face of the other object.
+      axes.push(...this._shape.normals, ...collider._shape.normals)
+
+      // The set of 9 axes formed by the cross products of edges are used to 
+      // consider edge on edge collision detection, where there is not a vertex 
+      // penetrating the other object.
+      for (var i = 0; i < 3; i++) {
+        for (var j = 0; j < 3; j++) {
+          let c = Vector3.cross(this._shape.normals[i], collider._shape.normals[j], vector.next())
+          if (c.sqrMagnitude === 0) {
+            continue
+          }
+          axes.push(c.normalize(c))
+        }
+      }
+    }
+
+    if (collider instanceof SphereCollider) {
+      let sphereCenter = collider.transform.getPosition(vector.next())
+      let closestPoint = this.getClosestPoint(sphereCenter, vector.next())
+
+      // When testing box with sphere using SAT, the only axis that needs to
+      // be tested goes from center of sphere to closest point on box.
+      Vector3.add(closestPoint, this._shape.center, closestPoint)
+      Vector3.subtract(closestPoint, sphereCenter, closestPoint)
+      axes.push(closestPoint.normalize(closestPoint))
+    }
+    return Shape.isIntersecting(this._shape, (<any>collider)._shape, axes, mtv)
+  }
+
+  private getClosestPoint(point: Vector3, out: Vector3) {
+    let diff = Vector3.subtract(point, this._shape.center, vector.next())
+    let scal = this.transform.getScaling(vector.next())
+    let exts = Vector3.multiply(this.extents, scal, vector.next())
+
+    out.fill(0)
+    for (var i = 0; i < 3; i++) {
+      let dist = Vector3.dot(diff, this._shape.normals[i])
+      if (dist > exts[i]) {
+        dist = exts[i]
+      }
+      if (dist < -exts[i]) {
+        dist = -exts[i]
+      }
+      Vector3.add(out, this._shape.normals[i].scale(dist, vector.next()), out)
+    }
+    return out
   }
 }

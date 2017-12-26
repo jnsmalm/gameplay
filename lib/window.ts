@@ -28,6 +28,8 @@ export interface WindowOptions {
   height?: number
   title?: string
   fullscreen?: boolean
+  samples?: number
+  resizable?: boolean
 }
 
 export class WindowInput {
@@ -63,22 +65,19 @@ export class Window {
   }
 
   /**
+   * Function called when framebuffer is resized.
+   */
+  framebufferSizeChanged: (width: number, height: number) => void
+
+  /**
    * Creates a new window and sets OpenGL context.
    */
-  constructor(options: WindowOptions = {}) {
-    var {
-      width = options.fullscreen ? 0 : 1024,
-      height = options.fullscreen ? 0 : 576,
-      title = "",
-      fullscreen = false
-    } = options
-
+  constructor({ fullscreen = false, width = fullscreen ? 0 : 1024, height = fullscreen ? 0 : 576, title = "", samples = 0, resizable = false }: WindowOptions = {}) {
     let videoMode: glfw.VideoMode | undefined
     if (fullscreen && (!width || !height)) {
-      videoMode = glfw.getVideoMode(glfw.getPrimaryMonitor());
-      ({ width, height } = videoMode)
+      ({ width, height } = videoMode = glfw.getVideoMode(glfw.getPrimaryMonitor()))
     }
-    this.setWindowHints(videoMode)
+    this.setWindowHints(samples, resizable, videoMode)
 
     this.handle = glfw.createWindow(width, height, title,
       fullscreen ? glfw.getPrimaryMonitor() : undefined)
@@ -92,8 +91,19 @@ export class Window {
     this.width = width
     this.height = height
 
-    let size = glfw.getFramebufferSize(this.handle)
-    gl.viewport(0, 0, size.width, size.height)
+    let framebufferSize = glfw.getFramebufferSize(this.handle)
+    gl.viewport(0, 0, framebufferSize.width, framebufferSize.height)
+
+    if (samples) {
+      gl.enable(gl.MULTISAMPLE)
+    }
+
+    glfw.setFramebufferSizeCallback(this.handle, (width, height) => {
+      gl.viewport(0, 0, width, height)
+      if (this.framebufferSizeChanged) {
+        this.framebufferSizeChanged(width, height)
+      }
+    })
 
     glfw.setKeyCallback(this.handle, (key, scancode, action, mods) => {
       if (action === 0) {
@@ -123,11 +133,13 @@ export class Window {
     })
   }
 
-  private setWindowHints(videoMode?: glfw.VideoMode) {
+  private setWindowHints(samples: number, resizable: boolean, videoMode?: glfw.VideoMode) {
     glfw.windowHint(glfw.CONTEXT_VERSION_MAJOR, 3)
     glfw.windowHint(glfw.CONTEXT_VERSION_MINOR, 3)
     glfw.windowHint(glfw.OPENGL_FORWARD_COMPAT, 1)
     glfw.windowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+    glfw.windowHint(glfw.SAMPLES, samples)
+    glfw.windowHint(glfw.RESIZABLE, resizable ? 1 : 0)
 
     if (!videoMode) {
       return

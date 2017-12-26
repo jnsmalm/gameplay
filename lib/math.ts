@@ -182,9 +182,7 @@ export class Vector3 extends Float32Array {
     if (t instanceof Matrix4) {
       return <Vector3>vec3.transformMat4(out, this, t)
     }
-    if (t instanceof Quaternion) {
-      return <Vector3>vec3.transformQuat(out, this, t)
-    }
+    return <Vector3>vec3.transformQuat(out, this, t)
   }
   /**
    * X component of the vector.
